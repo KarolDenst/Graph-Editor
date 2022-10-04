@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\kdens\\source\\repos\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {}
+    "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\kdens\\source\\repos\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {
+    "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kdens\\source\\repos\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
+        "projectUniqueName": "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
         "projectName": "Graficzne1",
-        "projectPath": "C:\\Users\\kdens\\source\\repos\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
+        "projectPath": "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
         "packagesPath": "C:\\Users\\kdens\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kdens\\source\\repos\\Graficzne1\\Graficzne1\\obj\\",
+        "outputPath": "C:\\Projects\\Graficzne1\\Graficzne1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\kdens\\AppData\\Roaming\\NuGet\\NuGet.Config",

@@ -8,6 +8,7 @@ namespace Graficzne1
         Graphics graphics;
         Pen pen = new Pen(Color.Black, 3);
         SelectedPoint selectedPoint = new SelectedPoint();
+        SolidBrush brush = new SolidBrush(Color.Black);
 
         public Form1()
         {
@@ -73,6 +74,7 @@ namespace Graficzne1
                     break;
                 case Mode.AddEdge:
                     AddVertexInTheMiddle(e.Location);
+                    DrawPolygons();
                     break;
                 default:
                     break;
@@ -96,7 +98,7 @@ namespace Graficzne1
                 }
                 for (int j = 0; j < polygons[i].Points.Count - 1; j++)
                 {
-                    if (isLineWithinDistance(polygons[i].Points[0].P, polygons[i].Points[1].P, p))
+                    if (isLineWithinDistance(polygons[i].Points[j].P, polygons[i].Points[j + 1].P, p))
                     {
                         return new SelectedPoint(j + 1, i);
                     }
@@ -132,6 +134,13 @@ namespace Graficzne1
         private void DeleteSelectedPoint()
         {
             if (selectedPoint.polygonIndex < 0) return;
+
+            if (polygons[selectedPoint.polygonIndex].Points.Count < 4)
+            {
+                polygons.Remove(polygons[selectedPoint.polygonIndex]);
+                DrawPolygons();
+                return;
+            }
 
             polygons[selectedPoint.polygonIndex].Points.Remove(polygons[selectedPoint.polygonIndex].Points[selectedPoint.pointIndex]);
             DrawPolygons();
@@ -169,10 +178,15 @@ namespace Graficzne1
         }
         private void DrawPolygon(MyPolygon polygon)
         {
+            int offset = Constants.VertexOffset;
+            int size = Constants.VertexSize;
+            
             graphics.DrawLine(pen, polygon.Points[0].P, polygon.Points[1].P);
+            graphics.FillEllipse(brush, polygon.Points[0].P.X - offset, polygon.Points[0].P.Y - offset, size, size);
             for (int i = 1; i < polygon.Points.Count; i++)
             {
                 graphics.DrawLine(pen, polygon.Points[i - 1].P, polygon.Points[i].P);
+                graphics.FillEllipse(brush, polygon.Points[i].P.X - offset, polygon.Points[i].P.Y - offset, size, size);
             }
             graphics.DrawLine(pen, polygon.Points[0].P, polygon.Points[polygon.Points.Count - 1].P);
         }
@@ -224,7 +238,6 @@ namespace Graficzne1
 
         private void MoveSelected(Point p)
         {
-            //if (Geometry.GetSquaredDistance(polygons[selectedPoint.polygonIndex].Points[selectedPoint.pointIndex].P, p) < 100) return;
             polygons[selectedPoint.polygonIndex].Points[selectedPoint.pointIndex].P = p;
 
             DrawPolygons();
