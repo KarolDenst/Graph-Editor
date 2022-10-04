@@ -12,6 +12,7 @@ namespace Graficzne1
         SelectedPoint selectedPoint = new SelectedPoint();
         SolidBrush brush = new SolidBrush(Color.Black);
         SelectedPolygon selectedPolygon = new SelectedPolygon();
+        SelectedEdge selectedEdge = new SelectedEdge();
 
         public Form1()
         {
@@ -95,13 +96,13 @@ namespace Graficzne1
         {
             for (int i = 0; i < polygons.Count; i++)
             {
-                if (isLineWithinDistance(polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P, p))
+                if (Geometry.isLineWithinDistance(polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P, p))
                 {
                     return new SelectedPoint(0, i);
                 }
                 for (int j = 0; j < polygons[i].Points.Count - 1; j++)
                 {
-                    if (isLineWithinDistance(polygons[i].Points[j].P, polygons[i].Points[j + 1].P, p))
+                    if (Geometry.isLineWithinDistance(polygons[i].Points[j].P, polygons[i].Points[j + 1].P, p))
                     {
                         return new SelectedPoint(j + 1, i);
                     }
@@ -113,26 +114,7 @@ namespace Graficzne1
 
         // Code taken from here
         // https://stackoverflow.com/questions/53173712/calculating-distance-of-point-to-linear-line
-        private bool isLineWithinDistance(Point lineStart, Point lineEnd, Point e)
-        {
-            int variance = Constants.LineToPointVariance;
-
-            double x1 = lineStart.X;
-            double x2 = lineEnd.X;
-            double y1 = lineStart.Y;
-            double y2 = lineEnd.Y;
-
-            double mouseX = e.X; // Mouse X position
-            double mouseY = e.Y; // Mouse Y position
-
-            double AB = Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-            double AP = Math.Sqrt((mouseX - x1) * (mouseX - x1) + (mouseY - y1) * (mouseY - y1));
-            double PB = Math.Sqrt((x2 - mouseX) * (x2 - mouseX) + (y2 - mouseY) * (y2 - mouseY));
-
-            if ((AP + PB) >= (AB - variance / 4) && (AP + PB) <= (AB + variance / 4)) return true;
-
-            return false;
-        }
+        
 
         private void DeleteSelectedPoint()
         {
@@ -203,10 +185,10 @@ namespace Graficzne1
                     break;
                 case Mode.Move:
                     SelectPoint(e.Location);
-                    if (selectedPoint.pointIndex == -1)
-                    {
-                        SelectPolygon(e.Location);
-                    }
+                    if (selectedPoint.pointIndex != -1) break;
+                    SelectEdge(e.Location);
+                    if (selectedEdge.index1 != -1) break;
+                    SelectPolygon(e.Location);
                     break;
                 case Mode.Delete:
                     break;
@@ -227,6 +209,27 @@ namespace Graficzne1
             }
         }
 
+        private void SelectEdge(Point p)
+        {
+            for(int i = 0; i < polygons.Count; i++)
+            {
+                if (Geometry.isLineWithinDistance(polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P, p))
+                {
+                    selectedEdge = new SelectedEdge(i, 0, polygons[i].Points.Count - 1, p, polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P);
+                    return;
+                }
+
+                for (int j = 0; j < polygons[i].Points.Count - 1; j++)
+                {
+                    if (Geometry.isLineWithinDistance(polygons[i].Points[j].P, polygons[i].Points[j + 1].P, p))
+                    {
+                        selectedEdge = new SelectedEdge(i, j, j + 1, p, polygons[i].Points[j].P, polygons[i].Points[j + 1].P);
+                        return;
+                    }
+                }
+            }
+        }
+
         private void pictureBox_MouseUp(object sender, MouseEventArgs e)
         {
             switch (mode)
@@ -236,6 +239,7 @@ namespace Graficzne1
                 case Mode.Move:
                     selectedPoint = new SelectedPoint();
                     selectedPolygon = new SelectedPolygon();
+                    selectedEdge = new SelectedEdge();
                     break;
                 case Mode.Delete:
                     break;
@@ -273,12 +277,27 @@ namespace Graficzne1
                 case Mode.Move:
                     if (selectedPoint.pointIndex > -1) MoveSelected(e.Location);
                     else if (selectedPolygon.index > -1) MoveSelectedPolygon(e.Location);
+                    else if (selectedEdge.polygonIndex > -1) MoveSelectedEdge(e.Location);
                     break;
                 case Mode.Delete:
                     break;
                 default:
                     break;
             }
+        }
+
+        private void MoveSelectedEdge(Point p)
+        {
+            int dx = p.X - selectedEdge.selectedLocation.X;
+            int dy = p.Y - selectedEdge.selectedLocation.Y;
+
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P.X = selectedEdge.originalP1.X + dx;
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P.Y = selectedEdge.originalP1.Y + dy;
+
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P.X = selectedEdge.originalP2.X + dx;
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P.Y = selectedEdge.originalP2.Y + dy;
+
+            DrawPolygons();
         }
 
         private void MoveSelectedPolygon(Point p)

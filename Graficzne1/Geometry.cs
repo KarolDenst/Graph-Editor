@@ -22,5 +22,26 @@ namespace Graficzne1
 
             return true;
         }
+
+        public static bool isLineWithinDistance(Point lineStart, Point lineEnd, Point e)
+        {
+            int variance = Constants.LineToPointVariance;
+
+            double x1 = lineStart.X;
+            double x2 = lineEnd.X;
+            double y1 = lineStart.Y;
+            double y2 = lineEnd.Y;
+
+            double mouseX = e.X; // Mouse X position
+            double mouseY = e.Y; // Mouse Y position
+
+            double AB = Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+            double AP = Math.Sqrt((mouseX - x1) * (mouseX - x1) + (mouseY - y1) * (mouseY - y1));
+            double PB = Math.Sqrt((x2 - mouseX) * (x2 - mouseX) + (y2 - mouseY) * (y2 - mouseY));
+
+            if ((AP + PB) >= (AB - variance / 4) && (AP + PB) <= (AB + variance / 4)) return true;
+
+            return false;
+        }
     }
 }
