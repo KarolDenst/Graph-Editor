@@ -1,3 +1,5 @@
+using System.Security.Cryptography.Xml;
+
 namespace Graficzne1
 {
     public partial class Form1 : Form
@@ -9,6 +11,7 @@ namespace Graficzne1
         Pen pen = new Pen(Color.Black, 3);
         SelectedPoint selectedPoint = new SelectedPoint();
         SolidBrush brush = new SolidBrush(Color.Black);
+        SelectedPolygon selectedPolygon = new SelectedPolygon();
 
         public Form1()
         {
@@ -176,6 +179,7 @@ namespace Graficzne1
             graphics.DrawImage(myBitmap, myBitmap.Width, 0,
                 myBitmap.Width, myBitmap.Height);
         }
+
         private void DrawPolygon(MyPolygon polygon)
         {
             int offset = Constants.VertexOffset;
@@ -199,11 +203,27 @@ namespace Graficzne1
                     break;
                 case Mode.Move:
                     SelectPoint(e.Location);
+                    if (selectedPoint.pointIndex == -1)
+                    {
+                        SelectPolygon(e.Location);
+                    }
                     break;
                 case Mode.Delete:
                     break;
                 default:
                     break;
+            }
+        }
+
+        private void SelectPolygon(Point p)
+        {
+            for(int i = 0; i < polygons.Count; i++)
+            {
+                if (Geometry.isInsideRectangle(polygons[i].GetSelectionSquare(), p))
+                {
+                    selectedPolygon = new SelectedPolygon(i, p, polygons[i]);
+                    return;
+                }
             }
         }
 
@@ -215,6 +235,7 @@ namespace Graficzne1
                     break;
                 case Mode.Move:
                     selectedPoint = new SelectedPoint();
+                    selectedPolygon = new SelectedPolygon();
                     break;
                 case Mode.Delete:
                     break;
@@ -243,11 +264,6 @@ namespace Graficzne1
             DrawPolygons();
         }
 
-        private void ClearSelected()
-        {
-
-        }
-
         private void pictureBox_MouseMove(object sender, MouseEventArgs e)
         {
             switch (mode)
@@ -256,6 +272,7 @@ namespace Graficzne1
                     break;
                 case Mode.Move:
                     if (selectedPoint.pointIndex > -1) MoveSelected(e.Location);
+                    else if (selectedPolygon.index > -1) MoveSelectedPolygon(e.Location);
                     break;
                 case Mode.Delete:
                     break;
@@ -264,6 +281,18 @@ namespace Graficzne1
             }
         }
 
+        private void MoveSelectedPolygon(Point p)
+        {
+            int dx = p.X - selectedPolygon.selectedLocation.X;
+            int dy = p.Y - selectedPolygon.selectedLocation.Y;
 
+            for(int i = 0; i < polygons[selectedPolygon.index].Points.Count; i++)
+            {
+                polygons[selectedPolygon.index].Points[i].P.X = selectedPolygon.polygon.Points[i].P.X + dx;
+                polygons[selectedPolygon.index].Points[i].P.Y = selectedPolygon.polygon.Points[i].P.Y + dy;
+            }
+
+            DrawPolygons();   
+        }
     }
 }

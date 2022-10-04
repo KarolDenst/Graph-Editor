@@ -8,7 +8,7 @@ namespace Graficzne1
 {
     internal class MyPoint
     {
-        public Point P { get; set; }
+        public Point P;
 
         public MyPoint(Point p)
         {
