@@ -23,6 +23,8 @@ namespace Graficzne1
             return true;
         }
 
+        // Code taken from here
+        // https://stackoverflow.com/questions/53173712/calculating-distance-of-point-to-linear-line
         public static bool isLineWithinDistance(Point lineStart, Point lineEnd, Point e)
         {
             int variance = Constants.LineToPointVariance;
