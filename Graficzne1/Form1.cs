@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Security.Cryptography.Xml;
 
 namespace Graficzne1
@@ -13,6 +14,7 @@ namespace Graficzne1
         SolidBrush brush = new SolidBrush(Color.Black);
         SelectedPolygon selectedPolygon = new SelectedPolygon();
         SelectedEdge selectedEdge = new SelectedEdge();
+        DrawingMode drawingMode = DrawingMode.Library;
 
         public Form1()
         {
@@ -61,26 +63,145 @@ namespace Graficzne1
             else if (AddVertexButton.Checked) mode = Mode.AddEdge;
         }
 
+        // Drawing Mode Radio button
+        private void libraryButton_CheckedChanged(object sender, EventArgs e)
+        {
+            SetDrawingMode();
+        }
+
+        private void bresenhamButton_CheckedChanged(object sender, EventArgs e)
+        {
+            SetDrawingMode();
+        }
+
+        private void SetDrawingMode()
+        {
+            if (libraryButton.Checked) drawingMode = DrawingMode.Library;
+            else if (bresenhamButton.Checked) drawingMode = DrawingMode.Bresenham;
+        }
+
         // Drawing Section
         private void DrawPolygon(MyPolygon polygon)
+        {
+            switch (drawingMode)
+            {
+                case DrawingMode.Library:
+                    DrawLibrary(polygon);
+                    break;
+                case DrawingMode.Bresenham:
+                    DrawBresenham(polygon);
+                    break;
+                default:
+                    break;
+            }            
+        }
+
+        private void DrawVertexes(MyPolygon polygon)
         {
             int offset = Constants.VertexOffset;
             int size = Constants.VertexSize;
 
-            graphics.DrawLine(pen, polygon.Points[0].P, polygon.Points[1].P);
             graphics.FillEllipse(brush, polygon.Points[0].P.X - offset, polygon.Points[0].P.Y - offset, size, size);
             for (int i = 1; i < polygon.Points.Count; i++)
             {
-                graphics.DrawLine(pen, polygon.Points[i - 1].P, polygon.Points[i].P);
                 graphics.FillEllipse(brush, polygon.Points[i].P.X - offset, polygon.Points[i].P.Y - offset, size, size);
             }
+        }
+
+        private void DrawLibrary(MyPolygon polygon)
+        {
+            DrawVertexes(polygon);
+
+            graphics.DrawLine(pen, polygon.Points[0].P, polygon.Points[1].P);
+            for (int i = 1; i < polygon.Points.Count; i++)
+            {
+                graphics.DrawLine(pen, polygon.Points[i - 1].P, polygon.Points[i].P);
+            }
             graphics.DrawLine(pen, polygon.Points[0].P, polygon.Points[polygon.Points.Count - 1].P);
+        }
+
+        private void DrawBresenham(MyPolygon polygon)
+        {
+            DrawVertexes(polygon);
+
+            Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
+
+            DrawLineBresenham(polygon.Points[0].P, polygon.Points[1].P, bitmap);
+            for (int i = 1; i < polygon.Points.Count; i++)
+            {
+                DrawLineBresenham(polygon.Points[i - 1].P, polygon.Points[i].P, bitmap);
+            }
+            DrawLineBresenham(polygon.Points[0].P, polygon.Points[polygon.Points.Count - 1].P, bitmap);
+
+            graphics.DrawImage(bitmap, 0, 0,
+                bitmap.Width, bitmap.Height);
+        }
+
+        // Code Source
+        // https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
+        private void DrawLineBresenham(Point p1, Point p2, Bitmap bitmap)
+        {
+            int x1 = p1.X;
+            int y1 = p1.Y;
+            int x2 = p2.X;
+            int y2 = p2.Y;
+            int dx = Math.Abs(x2 - x1);
+            int dy = Math.Abs(y2 - y1);
+            int decide = 1;
+
+            if (dx > dy) decide = 0;
+
+            int pk = 2 * dy - dx;
+            for (int i = 0; i <= dx; i++)
+            {
+                //cout << x1 << "," << y1 << endl;
+                // checking either to decrement or increment the
+                // value if we have to plot from (0,100) to (100,0)
+                if (x1 < x2) x1--;
+                else x1++;
+
+                if (pk < 0)
+                {
+                    // decision value will decide to plot
+                    // either  x1 or y1 in x's position
+                    if (decide == 0)
+                    {
+                        bitmap.SetPixel(x1, y1, Color.Black);
+                        // putpixel(x1, y1, RED);
+                        pk = pk + 2 * dy;
+                    }
+                    else
+                    {
+                        bitmap.SetPixel(y1, x1, Color.Black);
+                        //(y1,x1) is passed in xt
+                        // putpixel(y1, x1, YELLOW);
+                        pk = pk + 2 * dy;
+                    }
+                }
+                else
+                {
+                    if (y1 < y2) y1++;
+                    else y1--;
+
+                    if (decide == 0)
+                    {
+                        bitmap.SetPixel(x1, y1, Color.Black);
+                        // putpixel(x1, y1, RED);
+                    }
+                    else
+                    {
+                        bitmap.SetPixel(y1, x1, Color.Black);
+                        //  putpixel(y1, x1, YELLOW);
+                    }
+                    pk = pk + 2 * dy - 2 * dx;
+                }
+            }
+
         }
 
         private void DrawPolygons()
         {
             graphics.Clear(Color.White);
-            //pictureBox.Refresh();
             foreach (MyPolygon poly in polygons)
             {
                 DrawPolygon(poly);
