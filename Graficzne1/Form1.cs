@@ -20,7 +20,8 @@ namespace Graficzne1
         SelectedPolygon selectedPolygon = new SelectedPolygon();
         SelectedEdge selectedEdge = new SelectedEdge();
         DrawingMode drawingMode = DrawingMode.Library;
-
+        SolidBrush fontBrush = new SolidBrush(Color.Red);
+        Font font = new Font("Arial", 5);
 
         public Form1()
         {
@@ -539,13 +540,12 @@ namespace Graficzne1
                         {
                             int px = (polygons[i].Points[j].P.X + constraint.P.P.X) / 2 - Constants.ConstraintOffset;
                             int py = (polygons[i].Points[j].P.Y + constraint.P.P.Y) / 2 - Constants.ConstraintOffset;
-                            graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, Constants.ConstraintSize, Constants.ConstraintSize));
+                            graphics.DrawString(constraint.Length.ToString(), Font, fontBrush, new Point(px, py));
+                            //graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, Constants.ConstraintSize, Constants.ConstraintSize));
                         }
                     }
                 }
             }
         }
-
-        
     }
 }
