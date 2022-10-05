@@ -1,28 +1,38 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {}
+    "C:\\Projects\\Studies\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {
+    "C:\\Projects\\Studies\\Graficzne1\\Graficzne1\\Graficzne1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
+        "projectUniqueName": "C:\\Projects\\Studies\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
         "projectName": "Graficzne1",
-        "projectPath": "C:\\Projects\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
-        "packagesPath": "C:\\Users\\kdens\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\Graficzne1\\Graficzne1\\obj\\",
+        "projectPath": "C:\\Projects\\Studies\\Graficzne1\\Graficzne1\\Graficzne1.csproj",
+        "packagesPath": "C:\\Users\\z6kee\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\Studies\\Graficzne1\\Graficzne1\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
-          "C:\\Users\\kdens\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\z6kee\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net6.0-windows"
+          "net6.0-windows7.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "\\\\bld01wm.intern.kmd.dk\\KMDNuget\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://kmdapp0018.intern.kmd.dk/nuget/Dfd-NuGet-DataDistributor/": {},
+          "https://kmdapp0018.intern.kmd.dk/nuget/Dfd-NuGet-Develop/": {},
+          "https://kmdapp0018.intern.kmd.dk/nuget/Dfd-NuGet-Solution": {}
         },
         "frameworks": {
           "net6.0-windows7.0": {
@@ -45,8 +55,7 @@
             "net47",
             "net471",
             "net472",
-            "net48",
-            "net481"
+            "net48"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -58,7 +67,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
         }
       }
     }

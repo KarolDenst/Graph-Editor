@@ -11,6 +11,8 @@ namespace Graficzne1
         Place,
         Move,
         Delete,
-        AddEdge
+        AddEdge,
+        LengthConstraint,
+        ParrellarConstraint
     }
 }

@@ -10,11 +10,13 @@ namespace Graficzne1
         private MyPolygon polygon = new MyPolygon();
         Graphics graphics;
         Pen pen = new Pen(Color.Black, 3);
+        Pen lenConstPen = new Pen(Color.Red, 3);
         SelectedPoint selectedPoint = new SelectedPoint();
         SolidBrush brush = new SolidBrush(Color.Black);
         SelectedPolygon selectedPolygon = new SelectedPolygon();
         SelectedEdge selectedEdge = new SelectedEdge();
         DrawingMode drawingMode = DrawingMode.Library;
+
 
         public Form1()
         {
@@ -37,7 +39,9 @@ namespace Graficzne1
                 }
                 polygon = new MyPolygon();
             }
-            setMode();   
+            setMode();
+
+            DrawPolygons();
         }
 
         private void moveButton_CheckedChanged(object sender, EventArgs e)
@@ -55,12 +59,24 @@ namespace Graficzne1
             setMode();
         }
 
+        private void parrellarConstraintButton_CheckedChanged(object sender, EventArgs e)
+        {
+            setMode();
+        }
+
+        private void LengthConstraintButton_CheckedChanged(object sender, EventArgs e)
+        {
+            setMode();
+        }
+
         private void setMode()
         {
             if (placeButton.Checked) mode = Mode.Place;
             else if (moveButton.Checked) mode = Mode.Move;
             else if (deleteButton.Checked) mode = Mode.Delete;
             else if (AddVertexButton.Checked) mode = Mode.AddEdge;
+            else if (LengthConstraintButton.Checked) mode = Mode.LengthConstraint;
+            else if (parrellarConstraintButton.Checked) mode = Mode.ParrellarConstraint;
         }
 
         // Drawing Mode Radio button
@@ -78,6 +94,8 @@ namespace Graficzne1
         {
             if (libraryButton.Checked) drawingMode = DrawingMode.Library;
             else if (bresenhamButton.Checked) drawingMode = DrawingMode.Bresenham;
+
+            DrawPolygons();
         }
 
         // Drawing Section
@@ -98,6 +116,7 @@ namespace Graficzne1
 
         private void DrawVertexes(MyPolygon polygon)
         {
+            if (polygon.Points.Count < 1) return;
             int offset = Constants.VertexOffset;
             int size = Constants.VertexSize;
 
@@ -137,7 +156,7 @@ namespace Graficzne1
                 bitmap.Width, bitmap.Height);
         }
 
-        // Code Source
+        // Code idea from:
         // https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
         private void DrawLineBresenham(Point p1, Point p2, Bitmap bitmap)
         {
@@ -147,56 +166,87 @@ namespace Graficzne1
             int y2 = p2.Y;
             int dx = Math.Abs(x2 - x1);
             int dy = Math.Abs(y2 - y1);
-            int decide = 1;
+            int pk;
 
-            if (dx > dy) decide = 0;
-
-            int pk = 2 * dy - dx;
-            for (int i = 0; i <= dx; i++)
+            if (dx < dy)
             {
-                //cout << x1 << "," << y1 << endl;
-                // checking either to decrement or increment the
-                // value if we have to plot from (0,100) to (100,0)
-                if (x1 < x2) x1--;
-                else x1++;
-
-                if (pk < 0)
+                pk = 2 * dx - dy;
+                for (int i = 0; i <= dy; i++)
                 {
-                    // decision value will decide to plot
-                    // either  x1 or y1 in x's position
-                    if (decide == 0)
+                    if (y1 < y2) y1++;
+                    else y1--;
+
+                    if (pk < 0)
                     {
                         bitmap.SetPixel(x1, y1, Color.Black);
-                        // putpixel(x1, y1, RED);
-                        pk = pk + 2 * dy;
+
+                        pk = pk + 2 * dx;
                     }
                     else
                     {
-                        bitmap.SetPixel(y1, x1, Color.Black);
-                        //(y1,x1) is passed in xt
-                        // putpixel(y1, x1, YELLOW);
-                        pk = pk + 2 * dy;
+                        if (x1 < x2) x1++;
+                        else x1--;
+
+                        bitmap.SetPixel(x1, y1, Color.Black);
+
+                        pk = pk + 2 * dx - 2 * dy;
                     }
+                }
+                return;
+            }
+
+            pk = 2 * dy - dx;
+            for (int i = 0; i <= dx; i++)
+            {
+                if (x1 < x2) x1++;
+                else x1--;
+
+                if (pk < 0)
+                {
+                    bitmap.SetPixel(x1, y1, Color.Black);
+
+                    pk = pk + 2 * dy;
                 }
                 else
                 {
                     if (y1 < y2) y1++;
                     else y1--;
 
-                    if (decide == 0)
-                    {
-                        bitmap.SetPixel(x1, y1, Color.Black);
-                        // putpixel(x1, y1, RED);
-                    }
-                    else
-                    {
-                        bitmap.SetPixel(y1, x1, Color.Black);
-                        //  putpixel(y1, x1, YELLOW);
-                    }
+                    bitmap.SetPixel(x1, y1, Color.Black);
+                    
                     pk = pk + 2 * dy - 2 * dx;
                 }
             }
 
+        }
+
+        private void DrawCurrentPolygonLibrary()
+        {
+            DrawVertexes(polygon);
+
+            if (polygon.Points.Count < 2) return;
+            graphics.DrawLine(pen, polygon.Points[0].P, polygon.Points[1].P);
+            for (int i = 1; i < polygon.Points.Count; i++)
+            {
+                graphics.DrawLine(pen, polygon.Points[i - 1].P, polygon.Points[i].P);
+            }
+        }
+
+        private bool TrySavePolygon(Point p)
+        {
+            if (polygon.Points.Count < 3) return false;
+            if (Geometry.GetSquaredDistance(p, polygon.Points[0].P) < Constants.MaxSquaredDistanceToSelect)
+            {
+                if (polygon.Points.Count >= 3)
+                {
+                    polygons.Add(polygon);
+                    polygon = new MyPolygon();
+                    DrawPolygons();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void DrawPolygons()
@@ -206,8 +256,30 @@ namespace Graficzne1
             {
                 DrawPolygon(poly);
             }
-            if (polygon.Points.Count > 2) DrawPolygon(polygon);
+            DrawCurrentPolygonLibrary();
+            //if (polygon.Points.Count > 2) DrawPolygon(polygon);
+            DrawConstraints();
             pictureBox.Refresh();
+        }
+
+        private void DrawPolygonsWithCurrent(Point p)
+        {
+            graphics.Clear(Color.White);
+            foreach (MyPolygon poly in polygons)
+            {
+                DrawPolygon(poly);
+            }
+            DrawCurrentPolygonLibrary();
+            DrawLineToMouse(p);
+            pictureBox.Refresh();
+        }
+
+        private void DrawLineToMouse(Point p)
+        {
+            if (polygon.Points.Count > 0)
+            {
+                graphics.DrawLine(pen, polygon.Points[polygon.Points.Count - 1].P, p);
+            }
         }
 
         // Mouse Events
@@ -216,6 +288,8 @@ namespace Graficzne1
             switch (mode)
             {
                 case Mode.Place:
+                    if (TrySavePolygon(e.Location)) break;
+
                     polygon.Points.Add(new MyPoint(e.Location));
                     graphics.Clear(Color.White);
                     DrawPolygons();
@@ -230,6 +304,11 @@ namespace Graficzne1
                 case Mode.AddEdge:
                     AddVertexInTheMiddle(e.Location);
                     DrawPolygons();
+                    break;
+                case Mode.LengthConstraint:
+                    TryAddLengthConstraint(e.Location);
+                    break;
+                case Mode.ParrellarConstraint:
                     break;
                 default:
                     break;
@@ -261,6 +340,8 @@ namespace Graficzne1
             switch (mode)
             {
                 case Mode.Place:
+                    if (polygon.Points.Count <= 0) return;
+                    DrawPolygonsWithCurrent(e.Location);
                     break;
                 case Mode.Move:
                     if (selectedPoint.pointIndex > -1) MoveSelected(e.Location);
@@ -342,7 +423,12 @@ namespace Graficzne1
         // Move Selected
         private void MoveSelected(Point p)
         {
-            polygons[selectedPoint.polygonIndex].Points[selectedPoint.pointIndex].P = p;
+            MoveSelectedPoint(p, selectedPoint.polygonIndex, selectedPoint.pointIndex);
+        }
+
+        private void MoveSelectedPoint(Point p, int polygonIndex, int pointIndex)
+        {
+            polygons[polygonIndex].Points[pointIndex].P = p;
 
             DrawPolygons();
         }
@@ -352,13 +438,11 @@ namespace Graficzne1
             int dx = p.X - selectedEdge.selectedLocation.X;
             int dy = p.Y - selectedEdge.selectedLocation.Y;
 
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P.X = selectedEdge.originalP1.X + dx;
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P.Y = selectedEdge.originalP1.Y + dy;
+            Point p1 = new Point(selectedEdge.originalP1.X + dx, selectedEdge.originalP1.Y + dy);
+            Point p2 = new Point(selectedEdge.originalP2.X + dx, selectedEdge.originalP2.Y + dy);
 
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P.X = selectedEdge.originalP2.X + dx;
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P.Y = selectedEdge.originalP2.Y + dy;
-
-            DrawPolygons();
+            MoveSelectedPoint(p1, selectedEdge.polygonIndex, selectedEdge.index1);
+            MoveSelectedPoint(p2, selectedEdge.polygonIndex, selectedEdge.index2);
         }
 
         private void MoveSelectedPolygon(Point p)
@@ -418,23 +502,49 @@ namespace Graficzne1
             DrawPolygons();
         }
 
-        private void Test()
-        {
-            // Create a Bitmap object from a file.
-            Bitmap myBitmap = new Bitmap(200, 200);
+        // Constraints
 
-            // Set each pixel in myBitmap to black.
-            for (int Xcount = 0; Xcount < myBitmap.Width; Xcount++)
+        private void TryAddLengthConstraint(Point p)
+        {
+            SelectEdge(p);
+            if (selectedEdge.index1 == -1) return;
+
+            double edgeLength = GetEdgeLength(polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P);
+
+            int length = 10; // Do zmiany
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].constraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2]));
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].constraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1]));
+
+            DrawConstraints();
+            pictureBox.Refresh();
+            selectedEdge = new SelectedEdge();
+        }
+
+        private void DrawConstraints()
+        {
+            for(int i = 0; i < polygons.Count; i++)
             {
-                for (int Ycount = 0; Ycount < myBitmap.Height; Ycount++)
+                for(int j = 0; j < polygons[i].Points.Count; j++)
                 {
-                    myBitmap.SetPixel(Xcount, Ycount, Color.Black);
+                    foreach(LengthConstraint constraint in polygons[i].Points[j].constraints.Where(x => x.GetConstraintType() == ConstraintType.Length))
+                    {
+                        if (constraint.GetConstraintType() == ConstraintType.Length)
+                        {
+                            int px = (polygons[i].Points[j].P.X + constraint.P.P.X) / 2;
+                            int py = (polygons[i].Points[j].P.Y + constraint.P.P.Y) / 2;
+                            graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, 10, 10));
+                        }
+                    }
                 }
             }
+        }
 
-            // Draw myBitmap to the screen again.
-            graphics.DrawImage(myBitmap, myBitmap.Width, 0,
-                myBitmap.Width, myBitmap.Height);
+        private double GetEdgeLength(Point p1, Point p2)
+        {
+            int dx = p1.X - p2.X;
+            int dy = p1.Y - p2.Y;
+
+            return Math.Sqrt(dy * dy + dx * dx);
         }
     }
 }

@@ -9,10 +9,12 @@ namespace Graficzne1
     internal class MyPoint
     {
         public Point P;
+        public List<IConstraint> constraints;
 
         public MyPoint(Point p)
         {
             P = p;
+            constraints = new List<IConstraint>();
         }
     }
 }

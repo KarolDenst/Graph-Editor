@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Graficzne1
 {
-    internal enum DrawingMode
+    internal interface IConstraint
     {
-        Bresenham,
-        Library
+        ConstraintType GetConstraintType();
     }
 }

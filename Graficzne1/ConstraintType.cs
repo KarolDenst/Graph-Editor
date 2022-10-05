@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Graficzne1
 {
-    internal enum DrawingMode
+    internal enum ConstraintType
     {
-        Bresenham,
-        Library
+        Length,
+        Parrellar
     }
 }
