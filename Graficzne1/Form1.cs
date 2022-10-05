@@ -20,14 +20,16 @@ namespace Graficzne1
         SelectedPolygon selectedPolygon = new SelectedPolygon();
         SelectedEdge selectedEdge = new SelectedEdge();
         DrawingMode drawingMode = DrawingMode.Library;
-        SolidBrush fontBrush = new SolidBrush(Color.Red);
-        Font font = new Font("Arial", 5);
+        SolidBrush redBrush = new SolidBrush(Color.Red);
+        SolidBrush greenBrush = new SolidBrush(Color.Green);
+        int parrellarConstraintCounter = 0;
 
         public Form1()
         {
             InitializeComponent();
 
-            Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
+            //Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
+            Bitmap bitmap = new Bitmap(Screen.PrimaryScreen.WorkingArea.Width, Screen.PrimaryScreen.WorkingArea.Height);
             pictureBox.Image = bitmap;
             graphics = Graphics.FromImage(bitmap);
             graphics.Clear(Color.White);
@@ -66,6 +68,7 @@ namespace Graficzne1
 
         private void parrellarConstraintButton_CheckedChanged(object sender, EventArgs e)
         {
+            selectedEdge = new SelectedEdge();
             setMode();
         }
 
@@ -314,6 +317,7 @@ namespace Graficzne1
                     TryAddLengthConstraint(e.Location);
                     break;
                 case Mode.ParrellarConstraint:
+                    TryAddParrellarConstraint(e.Location);
                     break;
                 default:
                     break;
@@ -428,7 +432,9 @@ namespace Graficzne1
         // Move Selected
         private void MoveSelected(Point p)
         {
-            MoveSelectedPoint(p, selectedPoint.polygonIndex, selectedPoint.pointIndex);
+            MoveMyPoint(p, polygons[selectedPoint.polygonIndex].Points[selectedPoint.pointIndex]);
+
+            DrawPolygons();
         }
 
         private void MoveSelectedPoint(Point p, int polygonIndex, int pointIndex)
@@ -442,7 +448,7 @@ namespace Graficzne1
 
         private void ApplyLengthConstraint(int polygonIndex, int pointIndex)
         {
-            foreach (LengthConstraint constraint in polygons[polygonIndex].Points[pointIndex].constraints.Where(x => x.GetConstraintType() == ConstraintType.Length))
+            foreach (LengthConstraint constraint in polygons[polygonIndex].Points[pointIndex].lengthConstraints)
             {
                 int len = Geometry.GetEdgeLength(polygons[polygonIndex].Points[pointIndex].P, constraint.P.P);
                 if (len > constraint.Length)
@@ -455,8 +461,36 @@ namespace Graficzne1
                     double py = ratio * dy + constraint.P.P.Y;
 
                     polygons[polygonIndex].Points[pointIndex].P = new Point(Convert.ToInt32(px), Convert.ToInt32(py));
+
                 }
             }
+        }
+
+        private void ApplyEdgeLengthConstraint(MyPoint myPoint)
+        {
+            foreach (LengthConstraint constraint in myPoint.lengthConstraints)
+            {
+                int len = Geometry.GetEdgeLength(myPoint.P, constraint.P.P);
+                if (len > constraint.Length)
+                {
+                    double dx = myPoint.P.X - constraint.P.P.X;
+                    double dy = myPoint.P.Y - constraint.P.P.Y;
+                    double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
+
+                    double px = ratio * dx + constraint.P.P.X;
+                    double py = ratio * dy + constraint.P.P.Y;
+
+                    Point p = new Point(Convert.ToInt32(px), Convert.ToInt32(py));
+                    MoveMyPoint(p, myPoint);
+                }
+            }
+        }
+
+        private void MoveMyPoint(Point dest, MyPoint myPoint)
+        {
+            myPoint.P = dest;
+
+            ApplyEdgeLengthConstraint(myPoint);
         }
 
         private void MoveSelectedEdge(Point p)
@@ -541,12 +575,72 @@ namespace Graficzne1
 
             int length = Convert.ToInt32(lengthText);
 
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].constraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2]));
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].constraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1]));
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].lengthConstraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2]));
+            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].lengthConstraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1]));
 
             DrawConstraints();
             pictureBox.Refresh();
             selectedEdge = new SelectedEdge();
+        }
+
+        private void TryAddParrellarConstraint(Point p)
+        {
+            if(selectedEdge.index1 == -1)
+            {
+                SelectEdge(p);
+                if (selectedEdge.index1 != -1)
+                {
+                    graphics.DrawLine(lenConstPen, 
+                        polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P, 
+                        polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P);
+                    pictureBox.Refresh();
+                }
+                return;
+            }
+
+            SelectedEdge selectedEdge2 = new SelectedEdge();
+
+            for (int i = 0; i < polygons.Count; i++)
+            {
+                if (Geometry.isLineWithinDistance(polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P, p))
+                {
+                    selectedEdge2 = new SelectedEdge(i, 0, polygons[i].Points.Count - 1, p, polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P);
+                }
+
+                for (int j = 0; j < polygons[i].Points.Count - 1; j++)
+                {
+                    if (Geometry.isLineWithinDistance(polygons[i].Points[j].P, polygons[i].Points[j + 1].P, p))
+                    {
+                        selectedEdge2 = new SelectedEdge(i, j, j + 1, p, polygons[i].Points[j].P, polygons[i].Points[j + 1].P);
+                    }
+                }
+            }
+
+            if (selectedEdge2.index1 == -1) return;
+
+            MyPoint point1 = polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1];
+            MyPoint point2 = polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2];
+            MyPoint point3 = polygons[selectedEdge2.polygonIndex].Points[selectedEdge2.index1];
+            MyPoint point4 = polygons[selectedEdge2.polygonIndex].Points[selectedEdge2.index2];
+
+            if ((point1.P.Y < point2.P.Y && point2.P.Y < point3.P.Y) || (point1.P.Y > point2.P.Y && point2.P.Y > point3.P.Y))
+            {
+                point1.parrellarConstraints.Add(new ParrellarConstraint(point2, point3, point4, parrellarConstraintCounter));
+                point2.parrellarConstraints.Add(new ParrellarConstraint(point1, point4, point3, parrellarConstraintCounter));
+                point3.parrellarConstraints.Add(new ParrellarConstraint(point4, point1, point2, parrellarConstraintCounter));
+                point4.parrellarConstraints.Add(new ParrellarConstraint(point3, point2, point1, parrellarConstraintCounter));
+            }
+            else
+            {
+                point1.parrellarConstraints.Add(new ParrellarConstraint(point2, point4, point3, parrellarConstraintCounter));
+                point2.parrellarConstraints.Add(new ParrellarConstraint(point1, point3, point4, parrellarConstraintCounter));
+                point3.parrellarConstraints.Add(new ParrellarConstraint(point4, point2, point1, parrellarConstraintCounter));
+                point4.parrellarConstraints.Add(new ParrellarConstraint(point3, point1, point2, parrellarConstraintCounter));
+            }
+
+            selectedEdge = new SelectedEdge();
+            parrellarConstraintCounter++;
+            DrawPolygons();
         }
 
         private void DrawConstraints()
@@ -555,15 +649,20 @@ namespace Graficzne1
             {
                 for(int j = 0; j < polygons[i].Points.Count; j++)
                 {
-                    foreach(LengthConstraint constraint in polygons[i].Points[j].constraints.Where(x => x.GetConstraintType() == ConstraintType.Length))
+                    foreach(LengthConstraint constraint in polygons[i].Points[j].lengthConstraints)
                     {
-                        if (constraint.GetConstraintType() == ConstraintType.Length)
-                        {
-                            int px = (polygons[i].Points[j].P.X + constraint.P.P.X) / 2 - Constants.ConstraintOffset;
-                            int py = (polygons[i].Points[j].P.Y + constraint.P.P.Y) / 2 - Constants.ConstraintOffset;
-                            graphics.DrawString(constraint.Length.ToString(), Font, fontBrush, new Point(px, py));
-                            //graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, Constants.ConstraintSize, Constants.ConstraintSize));
-                        }
+                        int px = (polygons[i].Points[j].P.X + constraint.P.P.X) / 2 - Constants.ConstraintOffset;
+                        int py = (polygons[i].Points[j].P.Y + constraint.P.P.Y) / 2 - Constants.ConstraintOffset;
+                        graphics.DrawString(constraint.Length.ToString(), Font, redBrush, new Point(px, py));
+                        //graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, Constants.ConstraintSize, Constants.ConstraintSize));
+                    }
+
+                    foreach (ParrellarConstraint constraint in polygons[i].Points[j].parrellarConstraints)
+                    {
+                        int px = (polygons[i].Points[j].P.X + constraint.sameEdgePoint.P.X) / 2 - Constants.ConstraintOffset;
+                        int py = (polygons[i].Points[j].P.Y + constraint.sameEdgePoint.P.Y) / 2 - Constants.ConstraintOffset;
+                        graphics.DrawString(constraint.id.ToString(), Font, greenBrush, new Point(px, py));
+                        //graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, Constants.ConstraintSize, Constants.ConstraintSize));
                     }
                 }
             }

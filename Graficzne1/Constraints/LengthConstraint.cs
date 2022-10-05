@@ -8,14 +8,10 @@ using System.Threading.Tasks;
 
 namespace Graficzne1.Constraints
 {
-    internal class LengthConstraint : IConstraint
+    internal class LengthConstraint
     {
         public int Length;
         public MyPoint P;
-        public ConstraintType GetConstraintType()
-        {
-            return ConstraintType.Length;
-        }
 
         public LengthConstraint(int length, MyPoint p)
         {
