@@ -1,3 +1,7 @@
+using Graficzne1.Constraints;
+using Graficzne1.Enums;
+using Graficzne1.MyObjects;
+using Graficzne1.SelectedObjects;
 using System.Drawing;
 using System.Security.Cryptography.Xml;
 
@@ -509,9 +513,12 @@ namespace Graficzne1
             SelectEdge(p);
             if (selectedEdge.index1 == -1) return;
 
-            double edgeLength = GetEdgeLength(polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P);
+            int edgeLength = Geometry.GetEdgeLength(polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P);
 
-            int length = 10; // Do zmiany
+            string lengthText = Prompt.ShowDialog("Input maximum edge length", "123", edgeLength.ToString());
+
+            int length = Convert.ToInt32(lengthText);
+
             polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].constraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2]));
             polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].constraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1]));
 
@@ -530,21 +537,15 @@ namespace Graficzne1
                     {
                         if (constraint.GetConstraintType() == ConstraintType.Length)
                         {
-                            int px = (polygons[i].Points[j].P.X + constraint.P.P.X) / 2;
-                            int py = (polygons[i].Points[j].P.Y + constraint.P.P.Y) / 2;
-                            graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, 10, 10));
+                            int px = (polygons[i].Points[j].P.X + constraint.P.P.X) / 2 - Constants.ConstraintOffset;
+                            int py = (polygons[i].Points[j].P.Y + constraint.P.P.Y) / 2 - Constants.ConstraintOffset;
+                            graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, Constants.ConstraintSize, Constants.ConstraintSize));
                         }
                     }
                 }
             }
         }
 
-        private double GetEdgeLength(Point p1, Point p2)
-        {
-            int dx = p1.X - p2.X;
-            int dy = p1.Y - p2.Y;
-
-            return Math.Sqrt(dy * dy + dx * dx);
-        }
+        
     }
 }

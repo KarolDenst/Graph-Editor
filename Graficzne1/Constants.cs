@@ -12,5 +12,7 @@ namespace Graficzne1
         public static int LineToPointVariance = 10;
         public static int VertexOffset = 4;
         public static int VertexSize = 7;
+        public static int ConstraintOffset = 5;
+        public static int ConstraintSize = 10;
     }
 }

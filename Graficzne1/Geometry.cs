@@ -45,5 +45,13 @@ namespace Graficzne1
 
             return false;
         }
+
+        public static int GetEdgeLength(Point p1, Point p2)
+        {
+            int dx = p1.X - p2.X;
+            int dy = p1.Y - p2.Y;
+
+            return Convert.ToInt32(Math.Sqrt(dy * dy + dx * dx));
+        }
     }
 }
