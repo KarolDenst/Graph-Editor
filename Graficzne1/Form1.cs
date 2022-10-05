@@ -435,7 +435,28 @@ namespace Graficzne1
         {
             polygons[polygonIndex].Points[pointIndex].P = p;
 
+            ApplyLengthConstraint(polygonIndex, pointIndex);
+
             DrawPolygons();
+        }
+
+        private void ApplyLengthConstraint(int polygonIndex, int pointIndex)
+        {
+            foreach (LengthConstraint constraint in polygons[polygonIndex].Points[pointIndex].constraints.Where(x => x.GetConstraintType() == ConstraintType.Length))
+            {
+                int len = Geometry.GetEdgeLength(polygons[polygonIndex].Points[pointIndex].P, constraint.P.P);
+                if (len > constraint.Length)
+                {
+                    double dx = polygons[polygonIndex].Points[pointIndex].P.X - constraint.P.P.X;
+                    double dy = polygons[polygonIndex].Points[pointIndex].P.Y - constraint.P.P.Y;
+                    double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
+
+                    double px = ratio * dx + constraint.P.P.X;
+                    double py = ratio * dy + constraint.P.P.Y;
+
+                    polygons[polygonIndex].Points[pointIndex].P = new Point(Convert.ToInt32(px), Convert.ToInt32(py));
+                }
+            }
         }
 
         private void MoveSelectedEdge(Point p)
