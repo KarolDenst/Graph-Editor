@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Graficzne1.MyObjects
 {
-    internal class MyLine
+    internal class MyEdge
     {
     }
 }

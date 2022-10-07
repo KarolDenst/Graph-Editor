@@ -26,7 +26,7 @@ namespace Graficzne1.SelectedObjects
             polygon = new MyPolygon();
             foreach (MyPoint point in poly.Points)
             {
-                polygon.Points.Add(new MyPoint(new Point(point.P.X, point.P.Y)));
+                polygon.Points.Add(new MyPoint(new Point(point.P.X, point.P.Y), polygon));
             }
         }
     }

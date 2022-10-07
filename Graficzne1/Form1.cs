@@ -19,7 +19,7 @@ namespace Graficzne1
         //SelectedPoint selectedPoint = new SelectedPoint();
         MyPoint? selectedPoint = null;
         SelectedPolygon selectedPolygon = new SelectedPolygon();
-        SelectedEdge selectedEdge = new SelectedEdge();
+        SelectedEdge? selectedEdge = null;
 
         DrawingMode drawingMode = DrawingMode.Library;
 
@@ -73,7 +73,7 @@ namespace Graficzne1
 
         private void parrellarConstraintButton_CheckedChanged(object sender, EventArgs e)
         {
-            selectedEdge = new SelectedEdge();
+            selectedEdge = null;
             setMode();
         }
 
@@ -339,7 +339,7 @@ namespace Graficzne1
                     SelectPoint(e.Location);
                     if (selectedPoint is not null) break;
                     SelectEdge(e.Location);
-                    if (selectedEdge.index1 != -1) break;
+                    if (selectedEdge is not null) break;
                     SelectPolygon(e.Location);
                     break;
                 case Mode.Delete:
@@ -360,7 +360,7 @@ namespace Graficzne1
                 case Mode.Move:
                     if (selectedPoint is not null) MoveSelected(e.Location);
                     else if (selectedPolygon.index > -1) MoveSelectedPolygon(e.Location);
-                    else if (selectedEdge.polygonIndex > -1) MoveSelectedEdge(e.Location);
+                    else if (selectedEdge is not null) MoveSelectedEdge(e.Location);
                     break;
                 case Mode.Delete:
                     break;
@@ -378,7 +378,7 @@ namespace Graficzne1
                 case Mode.Move:
                     selectedPoint = null;
                     selectedPolygon = new SelectedPolygon();
-                    selectedEdge = new SelectedEdge();
+                    selectedEdge = null;
                     break;
                 case Mode.Delete:
                     break;
@@ -406,7 +406,10 @@ namespace Graficzne1
             {
                 if (Geometry.isLineWithinDistance(polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P, p))
                 {
-                    selectedEdge = new SelectedEdge(i, 0, polygons[i].Points.Count - 1, p, polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P);
+                    MyPoint p1 = polygons[i].Points[0];
+                    MyPoint p2 = polygons[i].Points[polygons[i].Points.Count - 1];
+
+                    selectedEdge = new SelectedEdge(ref p1, ref p2, p, polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P);
                     return;
                 }
 
@@ -414,7 +417,10 @@ namespace Graficzne1
                 {
                     if (Geometry.isLineWithinDistance(polygons[i].Points[j].P, polygons[i].Points[j + 1].P, p))
                     {
-                        selectedEdge = new SelectedEdge(i, j, j + 1, p, polygons[i].Points[j].P, polygons[i].Points[j + 1].P);
+                        MyPoint p1 = polygons[i].Points[j];
+                        MyPoint p2 = polygons[i].Points[j + 1];
+
+                        selectedEdge = new SelectedEdge(ref p1, ref p2, p, polygons[i].Points[j].P, polygons[i].Points[j + 1].P);
                         return;
                     }
                 }
@@ -506,8 +512,10 @@ namespace Graficzne1
             Point p1 = new Point(selectedEdge.originalP1.X + dx, selectedEdge.originalP1.Y + dy);
             Point p2 = new Point(selectedEdge.originalP2.X + dx, selectedEdge.originalP2.Y + dy);
 
-            MoveSelectedPoint(p1, selectedEdge.polygonIndex, selectedEdge.index1);
-            MoveSelectedPoint(p2, selectedEdge.polygonIndex, selectedEdge.index2);
+            selectedEdge.point1.Move(p1);
+            selectedEdge.point2.Move(p2);
+
+            DrawPolygons();
         }
 
         private void MoveSelectedPolygon(Point p)
@@ -572,61 +580,67 @@ namespace Graficzne1
         private void TryAddLengthConstraint(Point p)
         {
             SelectEdge(p);
-            if (selectedEdge.index1 == -1) return;
+            if (selectedEdge is null) return;
 
-            int edgeLength = Geometry.GetEdgeLength(polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P);
+            int edgeLength = Geometry.GetEdgeLength(selectedEdge.point1.P, selectedEdge.point2.P);
 
             string lengthText = Prompt.ShowDialog("Input maximum edge length", "123", edgeLength.ToString());
 
             int length = Convert.ToInt32(lengthText);
 
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].lengthConstraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2]));
-            polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].lengthConstraints.Add(new LengthConstraint(length, polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1]));
+            selectedEdge.point1.lengthConstraints.Add(new LengthConstraint(length, selectedEdge.point2));
+            selectedEdge.point2.lengthConstraints.Add(new LengthConstraint(length, selectedEdge.point1));
 
             DrawConstraints();
             pictureBox.Refresh();
-            selectedEdge = new SelectedEdge();
+            selectedEdge = null;
         }
 
         private void TryAddParrellarConstraint(Point p)
         {
-            if(selectedEdge.index1 == -1)
+            if(selectedEdge is null)
             {
                 SelectEdge(p);
-                if (selectedEdge.index1 != -1)
+                if (selectedEdge is not null)
                 {
-                    graphics.DrawLine(lenConstPen, 
-                        polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1].P, 
-                        polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2].P);
+                    graphics.DrawLine(lenConstPen,
+                        selectedEdge.point1.P,
+                        selectedEdge.point2.P);
                     pictureBox.Refresh();
                 }
                 return;
             }
 
-            SelectedEdge selectedEdge2 = new SelectedEdge();
+            SelectedEdge? selectedEdge2 = null;
 
             for (int i = 0; i < polygons.Count; i++)
             {
                 if (Geometry.isLineWithinDistance(polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P, p))
                 {
-                    selectedEdge2 = new SelectedEdge(i, 0, polygons[i].Points.Count - 1, p, polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P);
+                    MyPoint p1 = polygons[i].Points[0];
+                    MyPoint p2 = polygons[i].Points[polygons[i].Points.Count - 1];
+
+                    selectedEdge2 = new SelectedEdge(ref p1, ref p2, p, polygons[i].Points[0].P, polygons[i].Points[polygons[i].Points.Count - 1].P);
                 }
 
                 for (int j = 0; j < polygons[i].Points.Count - 1; j++)
                 {
+                    MyPoint p1 = polygons[i].Points[j];
+                    MyPoint p2 = polygons[i].Points[j + 1];
+
                     if (Geometry.isLineWithinDistance(polygons[i].Points[j].P, polygons[i].Points[j + 1].P, p))
                     {
-                        selectedEdge2 = new SelectedEdge(i, j, j + 1, p, polygons[i].Points[j].P, polygons[i].Points[j + 1].P);
+                        selectedEdge2 = new SelectedEdge(ref p1, ref p2, p, polygons[i].Points[j].P, polygons[i].Points[j + 1].P);
                     }
                 }
             }
 
-            if (selectedEdge2.index1 == -1) return;
+            if (selectedEdge2 is null) return;
 
-            MyPoint point1 = polygons[selectedEdge.polygonIndex].Points[selectedEdge.index1];
-            MyPoint point2 = polygons[selectedEdge.polygonIndex].Points[selectedEdge.index2];
-            MyPoint point3 = polygons[selectedEdge2.polygonIndex].Points[selectedEdge2.index1];
-            MyPoint point4 = polygons[selectedEdge2.polygonIndex].Points[selectedEdge2.index2];
+            MyPoint point1 = selectedEdge.point1;
+            MyPoint point2 = selectedEdge.point2;
+            MyPoint point3 = selectedEdge2.point1;
+            MyPoint point4 = selectedEdge2.point2;
 
             if ((point1.P.Y < point2.P.Y && point2.P.Y < point3.P.Y) || (point1.P.Y > point2.P.Y && point2.P.Y > point3.P.Y))
             {
@@ -643,7 +657,7 @@ namespace Graficzne1
                 point4.parrellarConstraints.Add(new ParrellarConstraint(point3, point1, point2, parrellarConstraintCounter));
             }
 
-            selectedEdge = new SelectedEdge();
+            selectedEdge = null;
             parrellarConstraintCounter++;
             DrawPolygons();
         }

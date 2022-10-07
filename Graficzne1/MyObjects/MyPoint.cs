@@ -15,14 +15,6 @@ namespace Graficzne1.MyObjects
         public List<LengthConstraint> lengthConstraints;
         public List<ParrellarConstraint> parrellarConstraints;
 
-        public MyPoint(Point p)
-        {
-            P = p;
-            //constraints = new List<IConstraint>();
-            lengthConstraints = new List<LengthConstraint>();
-            parrellarConstraints = new List<ParrellarConstraint>();
-        }
-
         public MyPoint(Point p, MyPolygon myPolygon)
         {
             P = p;
@@ -30,6 +22,11 @@ namespace Graficzne1.MyObjects
             lengthConstraints = new List<LengthConstraint>();
             parrellarConstraints = new List<ParrellarConstraint>();
             MyPolygon = myPolygon;
+        }
+
+        public void Move(Point p)
+        {
+            P = p;
         }
     }
 }
