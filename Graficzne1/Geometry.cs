@@ -53,5 +53,19 @@ namespace Graficzne1
 
             return Convert.ToInt32(Math.Sqrt(dy * dy + dx * dx));
         }
+
+        public static bool IsSameAngle(Point p1, Point p2, Point p3, Point p4)
+        {
+            double dy1 = p1.Y - p2.Y;
+            double dx1 = p1.X - p2.X;
+            double dy2 = p3.Y - p4.Y;
+            double dx2 = p3.X - p4.X;
+            double yRatio = dy1 / dy2;
+            double xRatio = dx1 / dx2;
+
+            if (Math.Abs(yRatio - xRatio) > Constants.AngleConstrint) return false;
+
+            return true;
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace Graficzne1.Constraints
         public int Length;
         public MyPoint P;
 
-        public LengthConstraint(int length, MyPoint p)
+        public LengthConstraint(int length, ref MyPoint p)
         {
             Length = length;
             P = p;

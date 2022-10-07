@@ -443,17 +443,8 @@ namespace Graficzne1
         // Move Selected
         private void MoveSelected(Point p)
         {
-            if (selectedPolygon == null) return;
-            MoveMyPoint(p, selectedPoint);
-
-            DrawPolygons();
-        }
-
-        private void MoveSelectedPoint(Point p, int polygonIndex, int pointIndex)
-        {
-            polygons[polygonIndex].Points[pointIndex].P = p;
-
-            ApplyLengthConstraint(polygonIndex, pointIndex);
+            if (selectedPoint == null) return;
+            selectedPoint.Move(p);
 
             DrawPolygons();
         }
@@ -473,36 +464,8 @@ namespace Graficzne1
                     double py = ratio * dy + constraint.P.P.Y;
 
                     polygons[polygonIndex].Points[pointIndex].P = new Point(Convert.ToInt32(px), Convert.ToInt32(py));
-
                 }
             }
-        }
-
-        private void ApplyEdgeLengthConstraint(MyPoint myPoint)
-        {
-            foreach (LengthConstraint constraint in myPoint.lengthConstraints)
-            {
-                int len = Geometry.GetEdgeLength(myPoint.P, constraint.P.P);
-                if (len > constraint.Length)
-                {
-                    double dx = myPoint.P.X - constraint.P.P.X;
-                    double dy = myPoint.P.Y - constraint.P.P.Y;
-                    double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
-
-                    double px = ratio * dx + constraint.P.P.X;
-                    double py = ratio * dy + constraint.P.P.Y;
-
-                    Point p = new Point(Convert.ToInt32(px), Convert.ToInt32(py));
-                    MoveMyPoint(p, myPoint);
-                }
-            }
-        }
-
-        private void MoveMyPoint(Point dest, MyPoint myPoint)
-        {
-            myPoint.P = dest;
-
-            ApplyEdgeLengthConstraint(myPoint);
         }
 
         private void MoveSelectedEdge(Point p)
@@ -589,8 +552,8 @@ namespace Graficzne1
 
             int length = Convert.ToInt32(lengthText);
 
-            selectedEdge.point1.lengthConstraints.Add(new LengthConstraint(length, selectedEdge.point2));
-            selectedEdge.point2.lengthConstraints.Add(new LengthConstraint(length, selectedEdge.point1));
+            selectedEdge.point1.lengthConstraints.Add(new LengthConstraint(length, ref selectedEdge.point2));
+            selectedEdge.point2.lengthConstraints.Add(new LengthConstraint(length, ref selectedEdge.point1));
 
             DrawConstraints();
             pictureBox.Refresh();
@@ -645,17 +608,17 @@ namespace Graficzne1
 
             if ((point1.P.Y < point2.P.Y && point2.P.Y < point3.P.Y) || (point1.P.Y > point2.P.Y && point2.P.Y > point3.P.Y))
             {
-                point1.parrellarConstraints.Add(new ParrellarConstraint(point2, point3, point4, parrellarConstraintCounter));
-                point2.parrellarConstraints.Add(new ParrellarConstraint(point1, point4, point3, parrellarConstraintCounter));
-                point3.parrellarConstraints.Add(new ParrellarConstraint(point4, point1, point2, parrellarConstraintCounter));
-                point4.parrellarConstraints.Add(new ParrellarConstraint(point3, point2, point1, parrellarConstraintCounter));
+                point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point3, ref point4, parrellarConstraintCounter));
+                point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point4, ref point3, parrellarConstraintCounter));
+                point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point1, ref point2, parrellarConstraintCounter));
+                point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point2, ref point1, parrellarConstraintCounter));
             }
             else
             {
-                point1.parrellarConstraints.Add(new ParrellarConstraint(point2, point4, point3, parrellarConstraintCounter));
-                point2.parrellarConstraints.Add(new ParrellarConstraint(point1, point3, point4, parrellarConstraintCounter));
-                point3.parrellarConstraints.Add(new ParrellarConstraint(point4, point2, point1, parrellarConstraintCounter));
-                point4.parrellarConstraints.Add(new ParrellarConstraint(point3, point1, point2, parrellarConstraintCounter));
+                point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point4, ref point3, parrellarConstraintCounter));
+                point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point3, ref point4, parrellarConstraintCounter));
+                point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point2, ref point1, parrellarConstraintCounter));
+                point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point1, ref point2, parrellarConstraintCounter));
             }
 
             selectedEdge = null;

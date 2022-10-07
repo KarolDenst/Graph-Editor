@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,5 +15,8 @@ namespace Graficzne1
         public static int VertexSize = 7;
         public static int ConstraintOffset = 20;
         public static int ConstraintSize = 10;
+        public static int LengthEonstraint = 1;
+        public static int RetryTimes = 1;
+        public static int AngleConstrint = 1;
     }
 }

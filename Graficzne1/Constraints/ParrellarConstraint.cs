@@ -14,7 +14,7 @@ namespace Graficzne1.Constraints
         public MyPoint otherEdgePointAsymetric;
         public MyPoint otherEdgePointSymetric;
 
-        public ParrellarConstraint(MyPoint sameEdgePoint, MyPoint otherEdgePointAsymetric, MyPoint otherEdgePointSymetric, int id)
+        public ParrellarConstraint(ref MyPoint sameEdgePoint, ref MyPoint otherEdgePointAsymetric, ref MyPoint otherEdgePointSymetric, int id)
         {
             this.sameEdgePoint = sameEdgePoint;
             this.otherEdgePointAsymetric = otherEdgePointAsymetric;
