@@ -26,13 +26,14 @@ namespace Graficzne1.MyObjects
         {
             Point original = P;
             if (!TryMovePoint(p)) P = original;
-
         }
 
         private bool TryMovePoint(Point p, int retry = 0)
         {
             P = p;
 
+            //if (!ApplyLengthConstraints(retry)) return false;
+            ApplyParrellarConstraints(retry);
             return ApplyLengthConstraints(retry);
         }
 
@@ -59,7 +60,7 @@ namespace Graficzne1.MyObjects
             return true;
         }
 
-        private void ApplyParrellarConstraint(int retry)
+        private void ApplyParrellarConstraints(int retry)
         {
             foreach(ParrellarConstraint constraint in parrellarConstraints)
             {
@@ -68,7 +69,33 @@ namespace Graficzne1.MyObjects
                     constraint.otherEdgePointSymetric.P,
                     constraint.otherEdgePointAsymetric.P)) continue;
 
+                double len1 = Geometry.GetEdgeLength(P, constraint.sameEdgePoint.P);
+                double len2 = Geometry.GetEdgeLength(constraint.otherEdgePointSymetric.P, constraint.otherEdgePointAsymetric.P);
+                double ratio = len2 / len1;
+                double dx = P.X - constraint.sameEdgePoint.P.X;
+                double dy = P.Y - constraint.sameEdgePoint.P.Y;
 
+                int x = Convert.ToInt32(constraint.otherEdgePointAsymetric.P.X + dx * ratio);
+                int y = Convert.ToInt32(constraint.otherEdgePointAsymetric.P.Y + dy * ratio);
+
+                Point p = new Point(x, y);
+
+                constraint.otherEdgePointSymetric.Move(p, retry + 1);
+            }
+        }
+
+        public void RemoveConstraints()
+        {
+            foreach(LengthConstraint constraint in lengthConstraints)
+            {
+                constraint.P.lengthConstraints.RemoveAll(x => x.P == this);
+            }
+
+            foreach (ParrellarConstraint constraint in parrellarConstraints)
+            {
+                constraint.sameEdgePoint.parrellarConstraints.RemoveAll(x => x.id == constraint.id);
+                constraint.otherEdgePointSymetric.parrellarConstraints.RemoveAll(x => x.id == constraint.id);
+                constraint.otherEdgePointAsymetric.parrellarConstraints.RemoveAll(x => x.id == constraint.id);
             }
         }
     }

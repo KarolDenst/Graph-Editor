@@ -16,7 +16,7 @@ namespace Graficzne1
         public static int ConstraintOffset = 20;
         public static int ConstraintSize = 10;
         public static int LengthEonstraint = 1;
-        public static int RetryTimes = 1;
-        public static int AngleConstrint = 1;
+        public static int RetryTimes = 5;
+        public static double AngleConstrint = 0.5;
     }
 }

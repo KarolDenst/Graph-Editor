@@ -449,25 +449,6 @@ namespace Graficzne1
             DrawPolygons();
         }
 
-        private void ApplyLengthConstraint(int polygonIndex, int pointIndex)
-        {
-            foreach (LengthConstraint constraint in polygons[polygonIndex].Points[pointIndex].lengthConstraints)
-            {
-                int len = Geometry.GetEdgeLength(polygons[polygonIndex].Points[pointIndex].P, constraint.P.P);
-                if (len > constraint.Length)
-                {
-                    double dx = polygons[polygonIndex].Points[pointIndex].P.X - constraint.P.P.X;
-                    double dy = polygons[polygonIndex].Points[pointIndex].P.Y - constraint.P.P.Y;
-                    double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
-
-                    double px = ratio * dx + constraint.P.P.X;
-                    double py = ratio * dy + constraint.P.P.Y;
-
-                    polygons[polygonIndex].Points[pointIndex].P = new Point(Convert.ToInt32(px), Convert.ToInt32(py));
-                }
-            }
-        }
-
         private void MoveSelectedEdge(Point p)
         {
             int dx = p.X - selectedEdge.selectedLocation.X;
@@ -500,7 +481,17 @@ namespace Graficzne1
         private void AddVertexInTheMiddle(Point p)
         {
             SelectedPoint point = FindEdge(p);
-            if (point.pointIndex == -1) return;
+            //if (point.pointIndex == -1) return;
+            //if (point.pointIndex == 0)
+            //{
+            //    polygons[point.polygonIndex].Points[0].RemoveConstraints();
+            //    polygons[point.polygonIndex].Points[^1].RemoveConstraints();
+            //}
+            //else
+            //{
+            //    polygons[point.polygonIndex].Points[point.pointIndex - 1].RemoveConstraints();
+            //    polygons[point.polygonIndex].Points[point.pointIndex].RemoveConstraints();
+            //}
             polygons[point.polygonIndex].Points.Insert(point.pointIndex, new MyPoint(p, polygons[point.polygonIndex]));
         }
 
@@ -535,6 +526,7 @@ namespace Graficzne1
                 return;
             }
 
+            selectedPoint.RemoveConstraints();
             selectedPoint.MyPolygon.Points.Remove(selectedPoint);
             DrawPolygons();
         }
@@ -555,8 +547,8 @@ namespace Graficzne1
             selectedEdge.point1.lengthConstraints.Add(new LengthConstraint(length, ref selectedEdge.point2));
             selectedEdge.point2.lengthConstraints.Add(new LengthConstraint(length, ref selectedEdge.point1));
 
-            DrawConstraints();
-            pictureBox.Refresh();
+            selectedEdge.point1.Move(selectedEdge.point1.P);
+            DrawPolygons();
             selectedEdge = null;
         }
 
@@ -606,7 +598,7 @@ namespace Graficzne1
             MyPoint point3 = selectedEdge2.point1;
             MyPoint point4 = selectedEdge2.point2;
 
-            if ((point1.P.Y < point2.P.Y && point2.P.Y < point3.P.Y) || (point1.P.Y > point2.P.Y && point2.P.Y > point3.P.Y))
+            if ((point1.P.Y < point2.P.Y && point3.P.Y < point4.P.Y) || (point1.P.Y > point2.P.Y && point3.P.Y > point4.P.Y))
             {
                 point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point3, ref point4, parrellarConstraintCounter));
                 point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point4, ref point3, parrellarConstraintCounter));
@@ -621,6 +613,7 @@ namespace Graficzne1
                 point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point1, ref point2, parrellarConstraintCounter));
             }
 
+            point4.Move(point4.P, -1);
             selectedEdge = null;
             parrellarConstraintCounter++;
             DrawPolygons();

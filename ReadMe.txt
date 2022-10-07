@@ -5,3 +5,7 @@ To add a vertex to a plygon select the "Add Vertex" checkbox and click on an edg
 
 If you want the program to draw using a library function select the "Library" checkbox.
 If you want the program to draw using Bresenham's algorithm select the "Bresenham" checkbox.
+
+To add a lenght constraint select the "Add Length Constraint" checkbox and click on an edge. A window will popup prompting you to select the length.
+To add a parallel constraint selecte the "Add Parallel" checkbox and click on an edge. The edge will turn red. Then click on another edge.
+parellel constraint is very laggy because I got stack overflow exceptions when I tried to make it smoother.
