@@ -18,7 +18,7 @@ namespace Graficzne1
 
         //SelectedPoint selectedPoint = new SelectedPoint();
         MyPoint? selectedPoint = null;
-        SelectedPolygon selectedPolygon = new SelectedPolygon();
+        SelectedPolygon? selectedPolygon = null;
         SelectedEdge? selectedEdge = null;
 
         DrawingMode drawingMode = DrawingMode.Library;
@@ -359,7 +359,7 @@ namespace Graficzne1
                     break;
                 case Mode.Move:
                     if (selectedPoint is not null) MoveSelected(e.Location);
-                    else if (selectedPolygon.index > -1) MoveSelectedPolygon(e.Location);
+                    else if (selectedPolygon is not null) MoveSelectedPolygon(e.Location);
                     else if (selectedEdge is not null) MoveSelectedEdge(e.Location);
                     break;
                 case Mode.Delete:
@@ -377,7 +377,7 @@ namespace Graficzne1
                     break;
                 case Mode.Move:
                     selectedPoint = null;
-                    selectedPolygon = new SelectedPolygon();
+                    selectedPolygon = null;
                     selectedEdge = null;
                     break;
                 case Mode.Delete:
@@ -433,7 +433,8 @@ namespace Graficzne1
             {
                 if (Geometry.isInsideRectangle(polygons[i].GetSelectionSquare(), p))
                 {
-                    selectedPolygon = new SelectedPolygon(i, p, polygons[i]);
+                    MyPolygon poly = polygons[i];
+                    selectedPolygon = new SelectedPolygon(p, ref poly);
                     return;
                 }
             }
@@ -523,10 +524,10 @@ namespace Graficzne1
             int dx = p.X - selectedPolygon.selectedLocation.X;
             int dy = p.Y - selectedPolygon.selectedLocation.Y;
 
-            for (int i = 0; i < polygons[selectedPolygon.index].Points.Count; i++)
+            for (int i = 0; i < selectedPolygon.polygon.Points.Count; i++)
             {
-                polygons[selectedPolygon.index].Points[i].P.X = selectedPolygon.polygon.Points[i].P.X + dx;
-                polygons[selectedPolygon.index].Points[i].P.Y = selectedPolygon.polygon.Points[i].P.Y + dy;
+                selectedPolygon.polygon.Points[i].P.X = selectedPolygon.originalPolygon.Points[i].P.X + dx;
+                selectedPolygon.polygon.Points[i].P.Y = selectedPolygon.originalPolygon.Points[i].P.Y + dy;
             }
 
             DrawPolygons();

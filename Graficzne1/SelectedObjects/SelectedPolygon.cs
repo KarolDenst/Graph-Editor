@@ -9,24 +9,19 @@ namespace Graficzne1.SelectedObjects
 {
     internal class SelectedPolygon
     {
-        public int index;
-        public Point selectedLocation;
         public MyPolygon polygon;
+        public Point selectedLocation;
+        public MyPolygon originalPolygon;
 
-        public SelectedPolygon()
+        public SelectedPolygon(Point p, ref MyPolygon poly)
         {
-            index = -1;
-        }
-
-        public SelectedPolygon(int index, Point p, MyPolygon poly)
-        {
-            this.index = index;
+            this.polygon = poly;
             selectedLocation = p;
 
-            polygon = new MyPolygon();
+            originalPolygon = new MyPolygon();
             foreach (MyPoint point in poly.Points)
             {
-                polygon.Points.Add(new MyPoint(new Point(point.P.X, point.P.Y), polygon));
+                originalPolygon.Points.Add(new MyPoint(new Point(point.P.X, point.P.Y), originalPolygon));
             }
         }
     }
