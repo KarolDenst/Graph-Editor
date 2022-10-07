@@ -15,13 +15,18 @@ namespace Graficzne1
         Graphics graphics;
         Pen pen = new Pen(Color.Black, 3);
         Pen lenConstPen = new Pen(Color.Red, 3);
-        SelectedPoint selectedPoint = new SelectedPoint();
-        SolidBrush brush = new SolidBrush(Color.Black);
+
+        //SelectedPoint selectedPoint = new SelectedPoint();
+        MyPoint? selectedPoint = null;
         SelectedPolygon selectedPolygon = new SelectedPolygon();
         SelectedEdge selectedEdge = new SelectedEdge();
+
         DrawingMode drawingMode = DrawingMode.Library;
+
+        SolidBrush brush = new SolidBrush(Color.Black);
         SolidBrush redBrush = new SolidBrush(Color.Red);
         SolidBrush greenBrush = new SolidBrush(Color.Green);
+
         int parrellarConstraintCounter = 0;
 
         public Form1()
@@ -82,7 +87,7 @@ namespace Graficzne1
             if (placeButton.Checked) mode = Mode.Place;
             else if (moveButton.Checked) mode = Mode.Move;
             else if (deleteButton.Checked) mode = Mode.Delete;
-            else if (AddVertexButton.Checked) mode = Mode.AddEdge;
+            else if (AddVertexButton.Checked) mode = Mode.AddVertex;
             else if (LengthConstraintButton.Checked) mode = Mode.LengthConstraint;
             else if (parrellarConstraintButton.Checked) mode = Mode.ParrellarConstraint;
         }
@@ -298,7 +303,7 @@ namespace Graficzne1
                 case Mode.Place:
                     if (TrySavePolygon(e.Location)) break;
 
-                    polygon.Points.Add(new MyPoint(e.Location));
+                    polygon.Points.Add(new MyPoint(e.Location, polygon));
                     graphics.Clear(Color.White);
                     DrawPolygons();
                     break;
@@ -307,9 +312,9 @@ namespace Graficzne1
                 case Mode.Delete:
                     SelectPoint(e.Location);
                     DeleteSelectedPoint();
-                    selectedPoint = new SelectedPoint();
+                    selectedPoint = null;
                     break;
-                case Mode.AddEdge:
+                case Mode.AddVertex:
                     AddVertexInTheMiddle(e.Location);
                     DrawPolygons();
                     break;
@@ -332,7 +337,7 @@ namespace Graficzne1
                     break;
                 case Mode.Move:
                     SelectPoint(e.Location);
-                    if (selectedPoint.pointIndex != -1) break;
+                    if (selectedPoint is not null) break;
                     SelectEdge(e.Location);
                     if (selectedEdge.index1 != -1) break;
                     SelectPolygon(e.Location);
@@ -353,7 +358,7 @@ namespace Graficzne1
                     DrawPolygonsWithCurrent(e.Location);
                     break;
                 case Mode.Move:
-                    if (selectedPoint.pointIndex > -1) MoveSelected(e.Location);
+                    if (selectedPoint is not null) MoveSelected(e.Location);
                     else if (selectedPolygon.index > -1) MoveSelectedPolygon(e.Location);
                     else if (selectedEdge.polygonIndex > -1) MoveSelectedEdge(e.Location);
                     break;
@@ -371,7 +376,7 @@ namespace Graficzne1
                 case Mode.Place:
                     break;
                 case Mode.Move:
-                    selectedPoint = new SelectedPoint();
+                    selectedPoint = null;
                     selectedPolygon = new SelectedPolygon();
                     selectedEdge = new SelectedEdge();
                     break;
@@ -390,8 +395,7 @@ namespace Graficzne1
                 for (int j = 0; j < polygons[i].Points.Count; j++)
                 {
                     if (Geometry.GetSquaredDistance(polygons[i].Points[j].P, p) > Constants.MaxSquaredDistanceToSelect) continue;
-                    selectedPoint.polygonIndex = i;
-                    selectedPoint.pointIndex = j;
+                    selectedPoint = polygons[i].Points[j];
                 }
             }
         }
@@ -432,7 +436,8 @@ namespace Graficzne1
         // Move Selected
         private void MoveSelected(Point p)
         {
-            MoveMyPoint(p, polygons[selectedPoint.polygonIndex].Points[selectedPoint.pointIndex]);
+            if (selectedPolygon == null) return;
+            MoveMyPoint(p, selectedPoint);
 
             DrawPolygons();
         }
@@ -524,7 +529,7 @@ namespace Graficzne1
         {
             SelectedPoint point = FindEdge(p);
             if (point.pointIndex == -1) return;
-            polygons[point.polygonIndex].Points.Insert(point.pointIndex, new MyPoint(p));
+            polygons[point.polygonIndex].Points.Insert(point.pointIndex, new MyPoint(p, polygons[point.polygonIndex]));
         }
 
         private SelectedPoint FindEdge(Point p)
@@ -549,16 +554,16 @@ namespace Graficzne1
 
         private void DeleteSelectedPoint()
         {
-            if (selectedPoint.polygonIndex < 0) return;
+            if (selectedPoint is null) return;
 
-            if (polygons[selectedPoint.polygonIndex].Points.Count < 4)
+            if (selectedPoint.MyPolygon.Points.Count < 4)
             {
-                polygons.Remove(polygons[selectedPoint.polygonIndex]);
+                polygons.Remove(selectedPoint.MyPolygon);
                 DrawPolygons();
                 return;
             }
 
-            polygons[selectedPoint.polygonIndex].Points.Remove(polygons[selectedPoint.polygonIndex].Points[selectedPoint.pointIndex]);
+            selectedPoint.MyPolygon.Points.Remove(selectedPoint);
             DrawPolygons();
         }
 

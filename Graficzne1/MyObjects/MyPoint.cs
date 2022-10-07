@@ -9,6 +9,7 @@ namespace Graficzne1.MyObjects
 {
     internal class MyPoint
     {
+        public MyPolygon MyPolygon;
         public Point P;
         //public List<IConstraint> constraints;
         public List<LengthConstraint> lengthConstraints;
@@ -20,6 +21,15 @@ namespace Graficzne1.MyObjects
             //constraints = new List<IConstraint>();
             lengthConstraints = new List<LengthConstraint>();
             parrellarConstraints = new List<ParrellarConstraint>();
+        }
+
+        public MyPoint(Point p, MyPolygon myPolygon)
+        {
+            P = p;
+            //constraints = new List<IConstraint>();
+            lengthConstraints = new List<LengthConstraint>();
+            parrellarConstraints = new List<ParrellarConstraint>();
+            MyPolygon = myPolygon;
         }
     }
 }

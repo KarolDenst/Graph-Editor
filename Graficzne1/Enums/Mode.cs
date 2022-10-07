@@ -11,7 +11,7 @@ namespace Graficzne1.Enums
         Place,
         Move,
         Delete,
-        AddEdge,
+        AddVertex,
         LengthConstraint,
         ParrellarConstraint
     }
