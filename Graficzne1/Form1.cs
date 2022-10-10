@@ -16,7 +16,6 @@ namespace Graficzne1
         Pen pen = new Pen(Color.Black, 3);
         Pen lenConstPen = new Pen(Color.Red, 3);
 
-        //SelectedPoint selectedPoint = new SelectedPoint();
         MyPoint? selectedPoint = null;
         SelectedPolygon? selectedPolygon = null;
         SelectedEdge? selectedEdge = null;
@@ -38,6 +37,8 @@ namespace Graficzne1
             pictureBox.Image = bitmap;
             graphics = Graphics.FromImage(bitmap);
             graphics.Clear(Color.White);
+
+            SetUpStartScene();
         }
 
         // RadioButton Section
@@ -600,17 +601,17 @@ namespace Graficzne1
 
             if ((point1.P.Y < point2.P.Y && point3.P.Y < point4.P.Y) || (point1.P.Y > point2.P.Y && point3.P.Y > point4.P.Y))
             {
-                point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point3, ref point4, parrellarConstraintCounter));
-                point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point4, ref point3, parrellarConstraintCounter));
-                point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point1, ref point2, parrellarConstraintCounter));
-                point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point2, ref point1, parrellarConstraintCounter));
-            }
-            else
-            {
                 point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point4, ref point3, parrellarConstraintCounter));
                 point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point3, ref point4, parrellarConstraintCounter));
                 point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point2, ref point1, parrellarConstraintCounter));
                 point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point1, ref point2, parrellarConstraintCounter));
+            }
+            else
+            {
+                point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point3, ref point4, parrellarConstraintCounter));
+                point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point4, ref point3, parrellarConstraintCounter));
+                point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point1, ref point2, parrellarConstraintCounter));
+                point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point2, ref point1, parrellarConstraintCounter));
             }
 
             point4.Move(point4.P, -1);
@@ -642,6 +643,59 @@ namespace Graficzne1
                     }
                 }
             }
+        }
+
+        private void SetUpStartScene()
+        {
+            // polygon 1
+            MyPolygon polygon1 = new MyPolygon();
+
+            MyPoint point1 = new MyPoint(new Point(10, 10), polygon);
+            MyPoint point2 = new MyPoint(new Point(110, 10), polygon);
+            MyPoint point3 = new MyPoint(new Point(80, 120), polygon);
+            MyPoint point4 = new MyPoint(new Point(10, 140), polygon);
+
+            point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point3, ref point4, parrellarConstraintCounter));
+            point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point4, ref point3, parrellarConstraintCounter));
+            point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point1, ref point2, parrellarConstraintCounter));
+            point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point2, ref point1, parrellarConstraintCounter));
+
+            //point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point4, ref point3, parrellarConstraintCounter));
+            //point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point3, ref point4, parrellarConstraintCounter));
+            //point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point2, ref point1, parrellarConstraintCounter));
+            //point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point1, ref point2, parrellarConstraintCounter));
+
+            point4.Move(point4.P, -1);
+
+            polygon1.Points.Add(point1);
+            polygon1.Points.Add(point2);
+            polygon1.Points.Add(point3);
+            polygon1.Points.Add(point4);
+
+            // polygon 2
+            MyPolygon polygon2 = new MyPolygon();
+
+            MyPoint point5 = new MyPoint(new Point(210, 210), polygon);
+            MyPoint point6 = new MyPoint(new Point(310, 210), polygon);
+            MyPoint point7 = new MyPoint(new Point(210, 320), polygon);
+
+            int length = 100;
+
+            point5.lengthConstraints.Add(new LengthConstraint(length, ref point6));
+            point6.lengthConstraints.Add(new LengthConstraint(length, ref point5));
+
+            point6.Move(point6.P, -1);
+
+            polygon2.Points.Add(point5);
+            polygon2.Points.Add(point6);
+            polygon2.Points.Add(point7);
+
+            // Draw
+            polygons.Add(polygon1);
+            polygons.Add(polygon2);
+
+            DrawPolygons();
+            pictureBox.Refresh();
         }
     }
 }

@@ -117,7 +117,7 @@
             // 
             this.parrellarConstraintButton.AutoSize = true;
             this.parrellarConstraintButton.Location = new System.Drawing.Point(0, 219);
-            this.parrellarConstraintButton.Margin = new System.Windows.Forms.Padding(1, 1, 1, 1);
+            this.parrellarConstraintButton.Margin = new System.Windows.Forms.Padding(1);
             this.parrellarConstraintButton.Name = "parrellarConstraintButton";
             this.parrellarConstraintButton.Size = new System.Drawing.Size(181, 24);
             this.parrellarConstraintButton.TabIndex = 6;
@@ -130,7 +130,7 @@
             // 
             this.LengthConstraintButton.AutoSize = true;
             this.LengthConstraintButton.Location = new System.Drawing.Point(0, 185);
-            this.LengthConstraintButton.Margin = new System.Windows.Forms.Padding(1, 1, 1, 1);
+            this.LengthConstraintButton.Margin = new System.Windows.Forms.Padding(1);
             this.LengthConstraintButton.Name = "LengthConstraintButton";
             this.LengthConstraintButton.Size = new System.Drawing.Size(178, 24);
             this.LengthConstraintButton.TabIndex = 5;
@@ -228,6 +228,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
