@@ -539,8 +539,8 @@ namespace Graficzne1
 
             int length = Convert.ToInt32(lengthText);
 
-            selectedEdge.point1.lengthConstraints.Add(new LengthConstraint(length, ref selectedEdge.point2));
-            selectedEdge.point2.lengthConstraints.Add(new LengthConstraint(length, ref selectedEdge.point1));
+            selectedEdge.point1.lengthConstraint = new LengthConstraint(length, ref selectedEdge.point2);
+            selectedEdge.point2.lengthConstraint = new LengthConstraint(length, ref selectedEdge.point1);
 
             selectedEdge.point1.Move(selectedEdge.point1.P);
             selectedEdge = null;
@@ -618,11 +618,11 @@ namespace Graficzne1
             {
                 for(int j = 0; j < polygons[i].Points.Count; j++)
                 {
-                    foreach(LengthConstraint constraint in polygons[i].Points[j].lengthConstraints)
+                    if (polygons[i].Points[j].lengthConstraint is not null)
                     {
-                        int px = (polygons[i].Points[j].P.X + constraint.P.P.X) / 2 - Constants.ConstraintOffset;
-                        int py = (polygons[i].Points[j].P.Y + constraint.P.P.Y) / 2 - Constants.ConstraintOffset;
-                        graphics.DrawString(constraint.Length.ToString(), Font, redBrush, new Point(px, py));
+                        int px = (polygons[i].Points[j].P.X + polygons[i].Points[j].lengthConstraint.P.P.X) / 2 - Constants.ConstraintOffset;
+                        int py = (polygons[i].Points[j].P.Y + polygons[i].Points[j].lengthConstraint.P.P.Y) / 2 - Constants.ConstraintOffset;
+                        graphics.DrawString(polygons[i].Points[j].lengthConstraint.Length.ToString(), Font, redBrush, new Point(px, py));
                         //graphics.DrawEllipse(lenConstPen, new Rectangle(px, py, Constants.ConstraintSize, Constants.ConstraintSize));
                     }
 
@@ -673,8 +673,8 @@ namespace Graficzne1
 
             int length = 100;
 
-            point5.lengthConstraints.Add(new LengthConstraint(length, ref point6));
-            point6.lengthConstraints.Add(new LengthConstraint(length, ref point5));
+            point5.lengthConstraint = new LengthConstraint(length, ref point6);
+            point6.lengthConstraint = new LengthConstraint(length, ref point5);
 
             point6.Move(point6.P, -1);
 

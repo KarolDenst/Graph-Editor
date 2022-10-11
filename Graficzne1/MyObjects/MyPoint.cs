@@ -6,13 +6,13 @@ namespace Graficzne1.MyObjects
     {
         public MyPolygon MyPolygon;
         public Point P;
-        public List<LengthConstraint> lengthConstraints;
+        public LengthConstraint? lengthConstraint;
         public List<ParrellarConstraint> parrellarConstraints;
 
         public MyPoint(Point p, ref MyPolygon myPolygon)
         {
             P = p;
-            lengthConstraints = new List<LengthConstraint>();
+            lengthConstraint = null;
             parrellarConstraints = new List<ParrellarConstraint>();
             MyPolygon = myPolygon;
         }
@@ -36,28 +36,19 @@ namespace Graficzne1.MyObjects
         {
             if (retry > Constants.RetryTimes) return false;
 
-            foreach (LengthConstraint constraint in lengthConstraints)
+            if (lengthConstraint != null)
             {
-                int len = Geometry.GetEdgeLength(P, constraint.P.P);
-                if (Math.Abs(len - constraint.Length) > Constants.LengthEonstraint)
+                int len = Geometry.GetEdgeLength(P, lengthConstraint.P.P);
+                if (Math.Abs(len - lengthConstraint.Length) > Constants.LengthEonstraint)
                 {
-                    //double dx = P.X - constraint.P.P.X;
-                    //double dy = P.Y - constraint.P.P.Y;
-                    //double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
-
-                    //double px = ratio * dx + constraint.P.P.X;
-                    //double py = ratio * dy + constraint.P.P.Y;
-
-                    //return TryMovePoint(new Point(Convert.ToInt32(px), Convert.ToInt32(py)), retry + 1);
-
-                    double dx = -P.X + constraint.P.P.X;
-                    double dy = -P.Y + constraint.P.P.Y;
-                    double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
+                    double dx = -P.X + lengthConstraint.P.P.X;
+                    double dy = -P.Y + lengthConstraint.P.P.Y;
+                    double ratio = Convert.ToDouble(lengthConstraint.Length) / Convert.ToDouble(len);
 
                     double px = ratio * dx + P.X;
                     double py = ratio * dy + P.Y;
 
-                    return constraint.P.TryMovePoint(new Point(Convert.ToInt32(px), Convert.ToInt32(py)), retry + 1);
+                    return lengthConstraint.P.TryMovePoint(new Point(Convert.ToInt32(px), Convert.ToInt32(py)), retry + 1);
                 }
             }
 
@@ -90,12 +81,9 @@ namespace Graficzne1.MyObjects
 
         public void RemoveConstraints()
         {
-            foreach(LengthConstraint constraint in lengthConstraints)
-            {
-                constraint.P.lengthConstraints.RemoveAll(x => x.P == this);
-            }
+            if (lengthConstraint is not null) lengthConstraint.P.lengthConstraint = null;
 
-            lengthConstraints = new List<LengthConstraint>();
+            lengthConstraint = null;
 
             foreach (ParrellarConstraint constraint in parrellarConstraints)
             {
