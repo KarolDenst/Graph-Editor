@@ -1,9 +1,4 @@
 ﻿using Graficzne1.MyObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Graficzne1.SelectedObjects
 {
@@ -23,6 +18,18 @@ namespace Graficzne1.SelectedObjects
             selectedLocation = p;
             originalP1 = p1;
             originalP2 = p2;
+        }
+
+        public void Move(Point p)
+        {
+            int dx = p.X - selectedLocation.X;
+            int dy = p.Y - selectedLocation.Y;
+
+            Point p1 = new Point(originalP1.X + dx, originalP1.Y + dy);
+            Point p2 = new Point(originalP2.X + dx, originalP2.Y + dy);
+
+            point1.Move(p1);
+            point2.Move(p2);
         }
     }
 }

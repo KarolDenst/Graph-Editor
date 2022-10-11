@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Graficzne1
+﻿namespace Graficzne1
 {
     // Source:
     // https://stackoverflow.com/questions/5427020/prompt-dialog-in-windows-forms

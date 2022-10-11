@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Graficzne1.SelectedObjects;
 
 namespace Graficzne1.MyObjects
 {
@@ -36,6 +32,18 @@ namespace Graficzne1.MyObjects
             }
 
             return new Rectangle(w_min, h_min, w_max - w_min, h_max - h_min);
+        }
+
+        public void Move(Point p, SelectedPolygon selectedPolygon)
+        {
+            int dx = p.X - selectedPolygon.selectedLocation.X;
+            int dy = p.Y - selectedPolygon.selectedLocation.Y;
+
+            for (int i = 0; i < selectedPolygon.polygon.Points.Count; i++)
+            {
+                selectedPolygon.polygon.Points[i].P.X = selectedPolygon.originalPolygon.Points[i].P.X + dx;
+                selectedPolygon.polygon.Points[i].P.Y = selectedPolygon.originalPolygon.Points[i].P.Y + dy;
+            }
         }
     }
 }

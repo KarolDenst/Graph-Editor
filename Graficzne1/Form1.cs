@@ -2,8 +2,6 @@ using Graficzne1.Constraints;
 using Graficzne1.Enums;
 using Graficzne1.MyObjects;
 using Graficzne1.SelectedObjects;
-using System.Drawing;
-using System.Security.Cryptography.Xml;
 
 namespace Graficzne1
 {
@@ -311,8 +309,7 @@ namespace Graficzne1
                 case Mode.Move:
                     break;
                 case Mode.Delete:
-                    SelectPoint(e.Location);
-                    //DeleteSelectedPoint();
+                    DeletePoint(e.Location);
                     selectedPoint = null;
                     break;
                 case Mode.AddVertex:
@@ -359,9 +356,21 @@ namespace Graficzne1
                     DrawPolygonsWithCurrent(e.Location);
                     break;
                 case Mode.Move:
-                    if (selectedPoint is not null) MoveSelected(e.Location);
-                    else if (selectedPolygon is not null) MoveSelectedPolygon(e.Location);
-                    else if (selectedEdge is not null) MoveSelectedEdge(e.Location);
+                    if (selectedPoint is not null)
+                    {
+                        selectedPoint.Move(e.Location);
+                        DrawPolygons();
+                    }
+                    else if (selectedPolygon is not null)
+                    {
+                        selectedPolygon.polygon.Move(e.Location, selectedPolygon);
+                        DrawPolygons();
+                    }
+                    else if (selectedEdge is not null)
+                    {
+                        selectedEdge.Move(e.Location);
+                        DrawPolygons();
+                    }
                     break;
                 case Mode.Delete:
                     break;
@@ -396,22 +405,6 @@ namespace Graficzne1
                 for (int j = 0; j < polygons[i].Points.Count; j++)
                 {
                     if (Geometry.GetSquaredDistance(polygons[i].Points[j].P, p) > Constants.MaxSquaredDistanceToSelect) continue;
-                    
-                    if (mode == Mode.Delete)
-                    {
-                        if (polygons[i].Points.Count < 4)
-                        {
-                            polygons.RemoveAt(i);
-                            DrawPolygons();
-                            return;
-                        }
-
-                        polygons[i].Points[j].RemoveConstraints();
-                        polygons[i].Points.RemoveAt(j);
-                        DrawPolygons();
-
-                        return;
-                    }
                     
                     selectedPoint = polygons[i].Points[j];
                 }
@@ -458,43 +451,6 @@ namespace Graficzne1
             }
         }
 
-        // Move Selected
-        private void MoveSelected(Point p)
-        {
-            if (selectedPoint == null) return;
-            selectedPoint.Move(p);
-
-            DrawPolygons();
-        }
-
-        private void MoveSelectedEdge(Point p)
-        {
-            int dx = p.X - selectedEdge.selectedLocation.X;
-            int dy = p.Y - selectedEdge.selectedLocation.Y;
-
-            Point p1 = new Point(selectedEdge.originalP1.X + dx, selectedEdge.originalP1.Y + dy);
-            Point p2 = new Point(selectedEdge.originalP2.X + dx, selectedEdge.originalP2.Y + dy);
-
-            selectedEdge.point1.Move(p1);
-            selectedEdge.point2.Move(p2);
-
-            DrawPolygons();
-        }
-
-        private void MoveSelectedPolygon(Point p)
-        {
-            int dx = p.X - selectedPolygon.selectedLocation.X;
-            int dy = p.Y - selectedPolygon.selectedLocation.Y;
-
-            for (int i = 0; i < selectedPolygon.polygon.Points.Count; i++)
-            {
-                selectedPolygon.polygon.Points[i].P.X = selectedPolygon.originalPolygon.Points[i].P.X + dx;
-                selectedPolygon.polygon.Points[i].P.Y = selectedPolygon.originalPolygon.Points[i].P.Y + dy;
-            }
-
-            DrawPolygons();
-        }
-
         // Utility
         private void AddVertexInTheMiddle(Point p)
         {
@@ -534,21 +490,32 @@ namespace Graficzne1
             return new SelectedPoint();
         }
 
-        //private void DeleteSelectedPoint()
-        //{
-        //    if (selectedPoint is null) return;
+        private void DeletePoint(Point p)
+        {
+            for (int i = 0; i < polygons.Count; i++)
+            {
+                for (int j = 0; j < polygons[i].Points.Count; j++)
+                {
+                    if (Geometry.GetSquaredDistance(polygons[i].Points[j].P, p) > Constants.MaxSquaredDistanceToSelect) continue;
 
-        //    if (selectedPoint.MyPolygon.Points.Count < 4)
-        //    {
-        //        polygons.Remove(selectedPoint.MyPolygon);
-        //        DrawPolygons();
-        //        return;
-        //    }
+                    if (mode == Mode.Delete)
+                    {
+                        if (polygons[i].Points.Count < 4)
+                        {
+                            polygons.RemoveAt(i);
+                            DrawPolygons();
+                            return;
+                        }
 
-        //    selectedPoint.RemoveConstraints();
-        //    selectedPoint.MyPolygon.Points.Remove(selectedPoint);
-        //    DrawPolygons();
-        //}
+                        polygons[i].Points[j].RemoveConstraints();
+                        polygons[i].Points.RemoveAt(j);
+                        DrawPolygons();
+
+                        return;
+                    }
+                }
+            }
+        }
 
         // Constraints
 
