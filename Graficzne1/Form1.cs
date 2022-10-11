@@ -81,6 +81,11 @@ namespace Graficzne1
             setMode();
         }
 
+        private void deleteConstraintButton_CheckedChanged(object sender, EventArgs e)
+        {
+            setMode();
+        }
+
         private void setMode()
         {
             if (placeButton.Checked) mode = Mode.Place;
@@ -89,6 +94,7 @@ namespace Graficzne1
             else if (AddVertexButton.Checked) mode = Mode.AddVertex;
             else if (LengthConstraintButton.Checked) mode = Mode.LengthConstraint;
             else if (parrellarConstraintButton.Checked) mode = Mode.ParrellarConstraint;
+            else if (deleteConstraintButton.Checked) mode = Mode.DeleteConstraint;
         }
 
         // Drawing Mode Radio button
@@ -301,7 +307,6 @@ namespace Graficzne1
             {
                 case Mode.Place:
                     if (TrySavePolygon(e.Location)) break;
-
                     polygon.Points.Add(new MyPoint(e.Location, ref polygon));
                     graphics.Clear(Color.White);
                     DrawPolygons();
@@ -310,7 +315,7 @@ namespace Graficzne1
                     break;
                 case Mode.Delete:
                     DeletePoint(e.Location);
-                    selectedPoint = null;
+                    DrawPolygons();
                     break;
                 case Mode.AddVertex:
                     AddVertexInTheMiddle(e.Location);
@@ -318,9 +323,15 @@ namespace Graficzne1
                     break;
                 case Mode.LengthConstraint:
                     TryAddLengthConstraint(e.Location);
+                    DrawPolygons();
                     break;
                 case Mode.ParrellarConstraint:
                     TryAddParrellarConstraint(e.Location);
+                    DrawPolygons();
+                    break;
+                case Mode.DeleteConstraint:
+                    TryRemoveConstraint(e.Location);
+                    DrawPolygons();
                     break;
                 default:
                     break;
@@ -503,13 +514,11 @@ namespace Graficzne1
                         if (polygons[i].Points.Count < 4)
                         {
                             polygons.RemoveAt(i);
-                            DrawPolygons();
                             return;
                         }
 
                         polygons[i].Points[j].RemoveConstraints();
                         polygons[i].Points.RemoveAt(j);
-                        DrawPolygons();
 
                         return;
                     }
@@ -534,7 +543,6 @@ namespace Graficzne1
             selectedEdge.point2.lengthConstraints.Add(new LengthConstraint(length, ref selectedEdge.point1));
 
             selectedEdge.point1.Move(selectedEdge.point1.P);
-            DrawPolygons();
             selectedEdge = null;
         }
 
@@ -602,7 +610,6 @@ namespace Graficzne1
             point4.Move(point4.P, -1);
             selectedEdge = null;
             parrellarConstraintCounter++;
-            DrawPolygons();
         }
 
         private void DrawConstraints()
@@ -681,6 +688,22 @@ namespace Graficzne1
 
             DrawPolygons();
             pictureBox.Refresh();
+        }
+
+        private void TryRemoveConstraint(Point p)
+        {
+            SelectedPoint point = FindEdge(p);
+            if (point.pointIndex == -1) return;
+            if (point.pointIndex == 0)
+            {
+                polygons[point.polygonIndex].Points[0].RemoveConstraints();
+                polygons[point.polygonIndex].Points[^1].RemoveConstraints();
+            }
+            else
+            {
+                polygons[point.polygonIndex].Points[point.pointIndex - 1].RemoveConstraints();
+                polygons[point.polygonIndex].Points[point.pointIndex].RemoveConstraints();
+            }           
         }
     }
 }

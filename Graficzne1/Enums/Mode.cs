@@ -7,6 +7,7 @@
         Delete,
         AddVertex,
         LengthConstraint,
-        ParrellarConstraint
+        ParrellarConstraint,
+        DeleteConstraint
     }
 }

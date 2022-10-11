@@ -41,6 +41,7 @@
             this.bresenhamButton = new System.Windows.Forms.RadioButton();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.deleteConstraintButton = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -91,14 +92,15 @@
             this.deleteButton.AutoSize = true;
             this.deleteButton.Location = new System.Drawing.Point(4, 86);
             this.deleteButton.Name = "deleteButton";
-            this.deleteButton.Size = new System.Drawing.Size(74, 24);
+            this.deleteButton.Size = new System.Drawing.Size(119, 24);
             this.deleteButton.TabIndex = 3;
-            this.deleteButton.Text = "Delete";
+            this.deleteButton.Text = "Delete Vertex";
             this.deleteButton.UseVisualStyleBackColor = true;
             this.deleteButton.CheckedChanged += new System.EventHandler(this.deleteButton_CheckedChanged);
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.deleteConstraintButton);
             this.groupBox1.Controls.Add(this.parrellarConstraintButton);
             this.groupBox1.Controls.Add(this.LengthConstraintButton);
             this.groupBox1.Controls.Add(this.AddVertexButton);
@@ -142,7 +144,7 @@
             // AddVertexButton
             // 
             this.AddVertexButton.AutoSize = true;
-            this.AddVertexButton.Location = new System.Drawing.Point(3, 116);
+            this.AddVertexButton.Location = new System.Drawing.Point(3, 146);
             this.AddVertexButton.Name = "AddVertexButton";
             this.AddVertexButton.Size = new System.Drawing.Size(103, 24);
             this.AddVertexButton.TabIndex = 4;
@@ -220,6 +222,18 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(136, 509);
             this.tableLayoutPanel2.TabIndex = 5;
             // 
+            // deleteConstraintButton
+            // 
+            this.deleteConstraintButton.AutoSize = true;
+            this.deleteConstraintButton.Location = new System.Drawing.Point(4, 116);
+            this.deleteConstraintButton.Name = "deleteConstraintButton";
+            this.deleteConstraintButton.Size = new System.Drawing.Size(145, 24);
+            this.deleteConstraintButton.TabIndex = 6;
+            this.deleteConstraintButton.TabStop = true;
+            this.deleteConstraintButton.Text = "Delete Constraint";
+            this.deleteConstraintButton.UseVisualStyleBackColor = true;
+            this.deleteConstraintButton.CheckedChanged += new System.EventHandler(this.deleteConstraintButton_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -255,5 +269,6 @@
         private TableLayoutPanel tableLayoutPanel2;
         private RadioButton parrellarConstraintButton;
         private RadioButton LengthConstraintButton;
+        private RadioButton deleteConstraintButton;
     }
 }
