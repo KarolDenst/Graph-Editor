@@ -14,7 +14,7 @@ namespace Graficzne1.MyObjects
         public List<LengthConstraint> lengthConstraints;
         public List<ParrellarConstraint> parrellarConstraints;
 
-        public MyPoint(Point p, MyPolygon myPolygon)
+        public MyPoint(Point p, ref MyPolygon myPolygon)
         {
             P = p;
             lengthConstraints = new List<LengthConstraint>();
@@ -46,14 +46,23 @@ namespace Graficzne1.MyObjects
                 int len = Geometry.GetEdgeLength(P, constraint.P.P);
                 if (Math.Abs(len - constraint.Length) > Constants.LengthEonstraint)
                 {
-                    double dx = P.X - constraint.P.P.X;
-                    double dy = P.Y - constraint.P.P.Y;
+                    //double dx = P.X - constraint.P.P.X;
+                    //double dy = P.Y - constraint.P.P.Y;
+                    //double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
+
+                    //double px = ratio * dx + constraint.P.P.X;
+                    //double py = ratio * dy + constraint.P.P.Y;
+
+                    //return TryMovePoint(new Point(Convert.ToInt32(px), Convert.ToInt32(py)), retry + 1);
+
+                    double dx = -P.X + constraint.P.P.X;
+                    double dy = -P.Y + constraint.P.P.Y;
                     double ratio = Convert.ToDouble(constraint.Length) / Convert.ToDouble(len);
 
-                    double px = ratio * dx + constraint.P.P.X;
-                    double py = ratio * dy + constraint.P.P.Y;
+                    double px = ratio * dx + P.X;
+                    double py = ratio * dy + P.Y;
 
-                    return TryMovePoint(new Point(Convert.ToInt32(px), Convert.ToInt32(py)), retry + 1);
+                    return constraint.P.TryMovePoint(new Point(Convert.ToInt32(px), Convert.ToInt32(py)), retry + 1);
                 }
             }
 
@@ -91,12 +100,16 @@ namespace Graficzne1.MyObjects
                 constraint.P.lengthConstraints.RemoveAll(x => x.P == this);
             }
 
+            lengthConstraints = new List<LengthConstraint>();
+
             foreach (ParrellarConstraint constraint in parrellarConstraints)
             {
                 constraint.sameEdgePoint.parrellarConstraints.RemoveAll(x => x.id == constraint.id);
                 constraint.otherEdgePointSymetric.parrellarConstraints.RemoveAll(x => x.id == constraint.id);
                 constraint.otherEdgePointAsymetric.parrellarConstraints.RemoveAll(x => x.id == constraint.id);
             }
+
+            parrellarConstraints = new List<ParrellarConstraint>();
         }
     }
 }

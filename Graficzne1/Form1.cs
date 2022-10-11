@@ -304,7 +304,7 @@ namespace Graficzne1
                 case Mode.Place:
                     if (TrySavePolygon(e.Location)) break;
 
-                    polygon.Points.Add(new MyPoint(e.Location, polygon));
+                    polygon.Points.Add(new MyPoint(e.Location, ref polygon));
                     graphics.Clear(Color.White);
                     DrawPolygons();
                     break;
@@ -312,7 +312,7 @@ namespace Graficzne1
                     break;
                 case Mode.Delete:
                     SelectPoint(e.Location);
-                    DeleteSelectedPoint();
+                    //DeleteSelectedPoint();
                     selectedPoint = null;
                     break;
                 case Mode.AddVertex:
@@ -396,6 +396,23 @@ namespace Graficzne1
                 for (int j = 0; j < polygons[i].Points.Count; j++)
                 {
                     if (Geometry.GetSquaredDistance(polygons[i].Points[j].P, p) > Constants.MaxSquaredDistanceToSelect) continue;
+                    
+                    if (mode == Mode.Delete)
+                    {
+                        if (polygons[i].Points.Count < 4)
+                        {
+                            polygons.RemoveAt(i);
+                            DrawPolygons();
+                            return;
+                        }
+
+                        polygons[i].Points[j].RemoveConstraints();
+                        polygons[i].Points.RemoveAt(j);
+                        DrawPolygons();
+
+                        return;
+                    }
+                    
                     selectedPoint = polygons[i].Points[j];
                 }
             }
@@ -482,18 +499,19 @@ namespace Graficzne1
         private void AddVertexInTheMiddle(Point p)
         {
             SelectedPoint point = FindEdge(p);
-            //if (point.pointIndex == -1) return;
-            //if (point.pointIndex == 0)
-            //{
-            //    polygons[point.polygonIndex].Points[0].RemoveConstraints();
-            //    polygons[point.polygonIndex].Points[^1].RemoveConstraints();
-            //}
-            //else
-            //{
-            //    polygons[point.polygonIndex].Points[point.pointIndex - 1].RemoveConstraints();
-            //    polygons[point.polygonIndex].Points[point.pointIndex].RemoveConstraints();
-            //}
-            polygons[point.polygonIndex].Points.Insert(point.pointIndex, new MyPoint(p, polygons[point.polygonIndex]));
+            if (point.pointIndex == -1) return;
+            if (point.pointIndex == 0)
+            {
+                polygons[point.polygonIndex].Points[0].RemoveConstraints();
+                polygons[point.polygonIndex].Points[^1].RemoveConstraints();
+            }
+            else
+            {
+                polygons[point.polygonIndex].Points[point.pointIndex - 1].RemoveConstraints();
+                polygons[point.polygonIndex].Points[point.pointIndex].RemoveConstraints();
+            }
+            MyPolygon polygon = polygons[point.polygonIndex];
+            polygons[point.polygonIndex].Points.Insert(point.pointIndex, new MyPoint(p, ref polygon));
         }
 
         private SelectedPoint FindEdge(Point p)
@@ -516,21 +534,21 @@ namespace Graficzne1
             return new SelectedPoint();
         }
 
-        private void DeleteSelectedPoint()
-        {
-            if (selectedPoint is null) return;
+        //private void DeleteSelectedPoint()
+        //{
+        //    if (selectedPoint is null) return;
 
-            if (selectedPoint.MyPolygon.Points.Count < 4)
-            {
-                polygons.Remove(selectedPoint.MyPolygon);
-                DrawPolygons();
-                return;
-            }
+        //    if (selectedPoint.MyPolygon.Points.Count < 4)
+        //    {
+        //        polygons.Remove(selectedPoint.MyPolygon);
+        //        DrawPolygons();
+        //        return;
+        //    }
 
-            selectedPoint.RemoveConstraints();
-            selectedPoint.MyPolygon.Points.Remove(selectedPoint);
-            DrawPolygons();
-        }
+        //    selectedPoint.RemoveConstraints();
+        //    selectedPoint.MyPolygon.Points.Remove(selectedPoint);
+        //    DrawPolygons();
+        //}
 
         // Constraints
 
@@ -650,10 +668,10 @@ namespace Graficzne1
             // polygon 1
             MyPolygon polygon1 = new MyPolygon();
 
-            MyPoint point1 = new MyPoint(new Point(10, 10), polygon);
-            MyPoint point2 = new MyPoint(new Point(110, 10), polygon);
-            MyPoint point3 = new MyPoint(new Point(80, 120), polygon);
-            MyPoint point4 = new MyPoint(new Point(10, 140), polygon);
+            MyPoint point1 = new MyPoint(new Point(10, 10), ref polygon);
+            MyPoint point2 = new MyPoint(new Point(110, 10), ref polygon);
+            MyPoint point3 = new MyPoint(new Point(80, 120), ref polygon);
+            MyPoint point4 = new MyPoint(new Point(10, 140), ref polygon);
 
             point1.parrellarConstraints.Add(new ParrellarConstraint(ref point2, ref point3, ref point4, parrellarConstraintCounter));
             point2.parrellarConstraints.Add(new ParrellarConstraint(ref point1, ref point4, ref point3, parrellarConstraintCounter));
@@ -675,9 +693,9 @@ namespace Graficzne1
             // polygon 2
             MyPolygon polygon2 = new MyPolygon();
 
-            MyPoint point5 = new MyPoint(new Point(210, 210), polygon);
-            MyPoint point6 = new MyPoint(new Point(310, 210), polygon);
-            MyPoint point7 = new MyPoint(new Point(210, 320), polygon);
+            MyPoint point5 = new MyPoint(new Point(210, 210), ref polygon);
+            MyPoint point6 = new MyPoint(new Point(310, 210), ref polygon);
+            MyPoint point7 = new MyPoint(new Point(210, 320), ref polygon);
 
             int length = 100;
 
