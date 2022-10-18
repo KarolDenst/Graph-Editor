@@ -11,5 +11,7 @@
         public static int LengthEonstraint = 1;
         public static int RetryTimes = 5;
         public static double AngleConstrint = 0.5;
+        public static string ErrorMessage = "Oops something went wrong :(";
+        public static string ErrorTitle = "Error";
     }
 }

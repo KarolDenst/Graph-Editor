@@ -17,10 +17,15 @@ namespace Graficzne1.MyObjects
             MyPolygon = myPolygon;
         }
 
-        public void Move(Point p, int retry = 0)
+        public bool Move(Point p, int retry = 0)
         {
             Point original = P;
-            if (!TryMovePoint(p)) P = original;
+            if (!TryMovePoint(p))
+            {
+                P = original;
+                return false;
+            }
+            return true;
         }
 
         private bool TryMovePoint(Point p, int retry = 0)
@@ -28,8 +33,10 @@ namespace Graficzne1.MyObjects
             P = p;
 
             //if (!ApplyLengthConstraints(retry)) return false;
-            ApplyParrellarConstraints(retry);
-            return ApplyLengthConstraints(retry);
+            bool parrellarWorked = ApplyParrellarConstraints(retry);
+            bool lengthWorked = ApplyLengthConstraints(retry);
+
+            return parrellarWorked && lengthWorked;
         }
 
         private bool ApplyLengthConstraints(int retry)
@@ -55,8 +62,10 @@ namespace Graficzne1.MyObjects
             return true;
         }
 
-        private void ApplyParrellarConstraints(int retry)
+        private bool ApplyParrellarConstraints(int retry)
         {
+            bool worked = true;
+
             foreach(ParrellarConstraint constraint in parrellarConstraints)
             {
                 if (Geometry.IsSameAngle(P,
@@ -75,8 +84,10 @@ namespace Graficzne1.MyObjects
 
                 Point p = new Point(x, y);
 
-                constraint.otherEdgePointSymetric.Move(p, retry + 1);
+                if (!constraint.otherEdgePointSymetric.Move(p, retry + 1)) worked = false;
             }
+
+            return worked;
         }
 
         public void RemoveConstraints()

@@ -369,7 +369,7 @@ namespace Graficzne1
                 case Mode.Move:
                     if (selectedPoint is not null)
                     {
-                        selectedPoint.Move(e.Location);
+                        if (!selectedPoint.Move(e.Location)) ShowErrorMessage();
                         DrawPolygons();
                     }
                     else if (selectedPolygon is not null)
@@ -542,7 +542,7 @@ namespace Graficzne1
             selectedEdge.point1.lengthConstraint = new LengthConstraint(length, ref selectedEdge.point2);
             selectedEdge.point2.lengthConstraint = new LengthConstraint(length, ref selectedEdge.point1);
 
-            selectedEdge.point1.Move(selectedEdge.point1.P);
+            if (!selectedEdge.point1.Move(selectedEdge.point1.P)) ShowErrorMessage();
             selectedEdge = null;
         }
 
@@ -607,7 +607,7 @@ namespace Graficzne1
                 point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point2, ref point1, parrellarConstraintCounter));
             }
 
-            point4.Move(point4.P, -1);
+            if (!point4.Move(point4.P, -1)) ShowErrorMessage();
             selectedEdge = null;
             parrellarConstraintCounter++;
         }
@@ -657,7 +657,7 @@ namespace Graficzne1
             //point3.parrellarConstraints.Add(new ParrellarConstraint(ref point4, ref point2, ref point1, parrellarConstraintCounter));
             //point4.parrellarConstraints.Add(new ParrellarConstraint(ref point3, ref point1, ref point2, parrellarConstraintCounter));
 
-            point4.Move(point4.P, -1);
+            if (!point4.Move(point4.P, -1)) ShowErrorMessage();
 
             polygon1.Points.Add(point1);
             polygon1.Points.Add(point2);
@@ -676,7 +676,7 @@ namespace Graficzne1
             point5.lengthConstraint = new LengthConstraint(length, ref point6);
             point6.lengthConstraint = new LengthConstraint(length, ref point5);
 
-            point6.Move(point6.P, -1);
+            if (!point6.Move(point6.P, -1)) ShowErrorMessage();
 
             polygon2.Points.Add(point5);
             polygon2.Points.Add(point6);
@@ -704,6 +704,11 @@ namespace Graficzne1
                 polygons[point.polygonIndex].Points[point.pointIndex - 1].RemoveConstraints();
                 polygons[point.polygonIndex].Points[point.pointIndex].RemoveConstraints();
             }           
+        }
+
+        private void ShowErrorMessage()
+        {
+            MessageBox.Show(Constants.ErrorMessage, Constants.ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

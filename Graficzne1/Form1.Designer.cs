@@ -33,6 +33,7 @@
             this.moveButton = new System.Windows.Forms.RadioButton();
             this.deleteButton = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.deleteConstraintButton = new System.Windows.Forms.RadioButton();
             this.parrellarConstraintButton = new System.Windows.Forms.RadioButton();
             this.LengthConstraintButton = new System.Windows.Forms.RadioButton();
             this.AddVertexButton = new System.Windows.Forms.RadioButton();
@@ -41,7 +42,6 @@
             this.bresenhamButton = new System.Windows.Forms.RadioButton();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.deleteConstraintButton = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -114,6 +114,18 @@
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Action";
+            // 
+            // deleteConstraintButton
+            // 
+            this.deleteConstraintButton.AutoSize = true;
+            this.deleteConstraintButton.Location = new System.Drawing.Point(4, 116);
+            this.deleteConstraintButton.Name = "deleteConstraintButton";
+            this.deleteConstraintButton.Size = new System.Drawing.Size(145, 24);
+            this.deleteConstraintButton.TabIndex = 6;
+            this.deleteConstraintButton.TabStop = true;
+            this.deleteConstraintButton.Text = "Delete Constraint";
+            this.deleteConstraintButton.UseVisualStyleBackColor = true;
+            this.deleteConstraintButton.CheckedChanged += new System.EventHandler(this.deleteConstraintButton_CheckedChanged);
             // 
             // parrellarConstraintButton
             // 
@@ -222,18 +234,6 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(136, 509);
             this.tableLayoutPanel2.TabIndex = 5;
             // 
-            // deleteConstraintButton
-            // 
-            this.deleteConstraintButton.AutoSize = true;
-            this.deleteConstraintButton.Location = new System.Drawing.Point(4, 116);
-            this.deleteConstraintButton.Name = "deleteConstraintButton";
-            this.deleteConstraintButton.Size = new System.Drawing.Size(145, 24);
-            this.deleteConstraintButton.TabIndex = 6;
-            this.deleteConstraintButton.TabStop = true;
-            this.deleteConstraintButton.Text = "Delete Constraint";
-            this.deleteConstraintButton.UseVisualStyleBackColor = true;
-            this.deleteConstraintButton.CheckedChanged += new System.EventHandler(this.deleteConstraintButton_CheckedChanged);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -241,7 +241,7 @@
             this.ClientSize = new System.Drawing.Size(905, 515);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Polygon Editor";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.groupBox1.ResumeLayout(false);

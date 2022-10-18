@@ -20,7 +20,7 @@ namespace Graficzne1.SelectedObjects
             originalP2 = p2;
         }
 
-        public void Move(Point p)
+        public bool Move(Point p)
         {
             int dx = p.X - selectedLocation.X;
             int dy = p.Y - selectedLocation.Y;
@@ -28,8 +28,12 @@ namespace Graficzne1.SelectedObjects
             Point p1 = new Point(originalP1.X + dx, originalP1.Y + dy);
             Point p2 = new Point(originalP2.X + dx, originalP2.Y + dy);
 
-            point1.Move(p1);
-            point2.Move(p2);
+            bool p1Worked = point1.Move(p1);
+            bool p2Worked = point2.Move(p2);
+
+            if (!p1Worked || !p2Worked) return false;
+
+            return true;
         }
     }
 }
